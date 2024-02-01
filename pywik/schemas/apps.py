@@ -1,15 +1,22 @@
-from enum import Enum
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Type
 
-from pydantic import AfterValidator, BaseModel, Field
-from pywik.schemas.base import BaseSchema
+from pydantic import AfterValidator, AliasPath, BaseModel, Field
+
+from pywik.schemas.base import BaseSchema, Page
 
 
 AppType = Literal["web"] | Literal["sharepoint"] | Literal["demo"]
+GDPR = Literal["no_device_storage"] | Literal["session_cookie_id"]
 
 
 class BaseApp(BaseSchema):
-    name: str
+    name: str = Field(validation_alias=AliasPath("attributes", "name"))
+
+    def __str__(self):
+        return repr(self)
+
+    def __repr__(self):
+        return f"BaseApp(id={self.id}, name='{self.name}')"
 
 
 class App(BaseApp):
@@ -35,9 +42,7 @@ class App(BaseApp):
     gdprLocationRecognition: bool = Field(default=True)
     gdprDataAnonymization: bool = Field(default=True)
     sharepointIntegration: bool = Field(default=False)
-    gdprDataAnonymizationMode: Literal["no_device_storage"] | Literal["session_cookie_id"] = Field(
-        default="session_cookie_id"
-    )
+    gdprDataAnonymizationMode: GDPR = Field(default="session_cookie_id")
     privacyUseCookies: bool = Field(default=True)
     privacyUseFingerprinting: bool = Field(default=True)
     cnil: bool = Field(default=False)
@@ -56,3 +61,7 @@ URLS = Annotated[list[str], AfterValidator(urls_startswith)]
 class AppDraft(BaseModel):
     name: str = Field(default=..., max_length=90)
     urls: URLS
+
+
+class AppsPage(Page[BaseApp]):
+    model: Type[BaseModel] = BaseApp

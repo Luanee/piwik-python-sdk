@@ -1,15 +1,19 @@
 from __future__ import annotations
-from typing import Any, Optional
+
 import platform
+import pprint
 import sys
 
+from typing import Any, Optional
+
+from oauthlib.oauth2 import BackendApplicationClient
 from requests import Response
+from requests.adapters import HTTPAdapter
+
 from pywik.base.config import ClientConfig
 from pywik.base.http import RefreshingOAuth2Session, RetryHttpAdapter
 from pywik.base.token import BaseTokenStorage, DefaultTokenStorage
-from requests.adapters import HTTPAdapter
 from pywik.version import __version__
-from oauthlib.oauth2 import BackendApplicationClient
 
 
 class BaseClient:
@@ -22,12 +26,9 @@ class BaseClient:
         token_storage: Optional[BaseTokenStorage] = None,
         http_adapter: Optional[HTTPAdapter] = None,
     ) -> None:
-        self._config = ClientConfig(  # pyright: ignore
-            client_id=client_id,  # pyright: ignore
-            client_secret=client_secret,  # pyright: ignore
-            url=url,  # pyright: ignore
-            auth_url=auth_url,  # pyright: ignore
-        )  # pyright: ignore
+        self._config = ClientConfig(
+            client_id=client_id, client_secret=client_secret, url=url, auth_url=auth_url  # pyright: ignore
+        )
 
         self.__token_storage = token_storage or DefaultTokenStorage()
         http_adapter = http_adapter or RetryHttpAdapter()
@@ -40,7 +41,7 @@ class BaseClient:
             auto_refresh_kwargs={
                 "grant_type": "client_credentials",
                 "client_id": self._config.client_id,
-                "client_secret": self._config.client_secret,
+                "client_secret": self._config.client_secret.get_secret_value(),
             },
             token_updater=self.__token_storage.add_token,
         )
@@ -49,15 +50,15 @@ class BaseClient:
         self._http_client.mount("https://", http_adapter)
 
         _token = self.__token_storage.get_token(self._config.client_id)
-        if _token:
-            self._http_client.token = _token
-        else:
+
+        if not _token:
             _token = self._http_client.fetch_token(
                 token_url=self._config.auth_url,
                 client_id=self._config.client_id,
-                client_secret=self._config.client_secret,
+                client_secret=self._config.client_secret.get_secret_value(),
             )
             self.__token_storage.add_token(self._config.client_id, _token)
+        self._http_client.token = _token
 
     @property
     def _user_agent(self):

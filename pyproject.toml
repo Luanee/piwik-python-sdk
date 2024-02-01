@@ -6,7 +6,7 @@ authors = ["Pit Nahrstedt <pit_nahrstedt@web.de>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.10"
 pydantic = "^2.6.0"
 pydantic-settings = "^2.1.0"
 requests = "^2.31.0"
@@ -53,11 +53,65 @@ exclude = '''
 
 [tool.isort]
 profile = "black"
-line_length = 120
 multi_line_output = 3
 include_trailing_comma = true
-virtual_env = "venv"
+ensure_newline_before_comments = true
+line_length = 120
+lines_between_types = 1
+lines_after_imports = 2
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+minversion = "7.0"
 python_files = "test_*.py"
+addopts = "--cov=pywik --cov-report term-missing:skip-covered"
+testpaths = ["tests"]
+
+[tool.pylint.MAIN]
+ignore = []
+py-version = "^3.10"
+extension-pkg-allow-list = "pydantic"
+
+[tool.pylint.format]
+max-line-length = 120
+disable = [
+  "C0114", # (missing-module-docstring)
+  "C0115", # (missing-class-docstring)
+  "C0116", # (missing-function-docstring)
+  "E0611", # (no-name-in-module)
+  "R0903", # (too-few-public-methods)
+  "R0913", # (too-many-arguments)
+  "W1203", # (logging-fstring-interpolation)
+  "W0105", # (pointless-string-statement)
+  "E0213", # (no-self-argument)
+  "W0221", # (arguments-differ)
+]
+
+
+[tool.pylint.BASIC]
+good-names = ["i", "j", "k", "x", "y", "df", "db"]
+
+
+[tool.pylint.LOGGING]
+logging-format-style = "new"
+
+
+
+[tool.coverage.run]
+branch = true
+source = ["data_engineering_services", "tests"]
+# * Maybee we need this later when we have some fixtures (code that runs at every test but isn't a test)
+# omit = ["tests/fixtures/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "pragma: no cover",
+  "def __repr__",
+  "def __str__",
+  "raise AssertionError",
+  "raise NotImplementedError",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+  "if typing.TYPE_CHECKING:"
+]
+
+
