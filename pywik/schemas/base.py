@@ -29,4 +29,4 @@ class Page(BaseModel, Generic[TSchema]):
         return repr(self)
 
     def __repr__(self):
-        return f"Page<{self.model.__name__}>(page={self.page}, size={self.size}, total='{self.total}')"
+        return f"Page<{self.model.__name__}>(page={self.page}, size={self.size}, total={self.total})"

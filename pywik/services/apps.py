@@ -1,10 +1,21 @@
 import warnings
 
-from typing import Optional
+from typing import Literal, Optional
 
 from pywik.base import BaseClient
 from pywik.schemas.apps import AppsPage
-from pywik.schemas.base import Page
+
+
+SEARCH = (
+    Literal["name"]
+    | Literal["addedAt"]
+    | Literal["updatedAt"]
+    | Literal["-name"]
+    | Literal["-addedAt"]
+    | Literal["-updatedAt"]
+)
+
+PERMISSIONS = Literal["view"] | Literal["edit"] | Literal["publish"] | Literal["manage"]
 
 
 class AppsService:
@@ -14,12 +25,35 @@ class AppsService:
     def __init__(self, client: BaseClient):
         self._client = client
 
-    def list(self, search: Optional[str] = None, sort: str = "-addedAt", page: int = 0, size: int = 10) -> AppsPage:
+    def list(
+        self,
+        search: Optional[str] = None,
+        sort: SEARCH = "-addedAt",
+        page: int = 0,
+        size: int = 10,
+        permission: Optional[PERMISSIONS] = None,
+    ) -> AppsPage:
+        """Get list of apps
+
+        Args:
+            search (Optional[str], optional): App search query. Defaults to None.
+            sort (str, optional): Sort field - can be reversed by adding dash before field name e.g (-name). Defaults to "-addedAt".
+            page (int, optional): Sets offset for list of items. Defaults to 0.
+            size (int, optional): Limits the number of returned items. Defaults to 10.
+
+        Raises:
+            ValueError: _description_
+
+        Returns:
+            AppsPage: _description_
+        """
+
         params = {
             "search": search,
             "sort": sort,
             "limit": size,
             "offset": page * size,
+            "permission": permission,
         }
 
         response = self._client._get(self._endpoint, params=params)
