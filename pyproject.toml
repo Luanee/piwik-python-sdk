@@ -4,6 +4,9 @@ version = "0.1.0"
 description = ""
 authors = ["Pit Nahrstedt <pit_nahrstedt@web.de>"]
 readme = "README.md"
+packages = [
+    { include = "pywik" },
+]
 
 [tool.poetry.dependencies]
 python = "^3.10"

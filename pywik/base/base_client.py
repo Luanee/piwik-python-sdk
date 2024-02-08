@@ -45,7 +45,12 @@ class BaseClient:
             },
             token_updater=self.__token_storage.add_token,
         )
-        self._http_client.headers.update({"User-Agent": self._user_agent})
+        self._http_client.headers.update(
+            {
+                "User-Agent": self._user_agent,
+                "Content-Type": "application/vnd.api+json",
+            }
+        )
         self._http_client.mount("http://", http_adapter)
         self._http_client.mount("https://", http_adapter)
 
@@ -69,7 +74,7 @@ class BaseClient:
     def _get(
         self,
         endpoint: str,
-        params: dict[str, Any],
+        params: Optional[dict[str, Any]] = None,
         headers: Optional[dict[str, str]] = None,
     ) -> Response:
         """Retrieve a single object from piwik pro"""
@@ -82,7 +87,7 @@ class BaseClient:
     def _post(
         self,
         endpoint: str,
-        params: dict[str, Any],
+        params: Optional[dict[str, Any]] = None,
         data: Any = None,
         json: Optional[dict[str, Any]] = None,
         headers: Optional[dict[str, str]] = None,
@@ -99,8 +104,8 @@ class BaseClient:
     def _patch(
         self,
         endpoint: str,
-        params: dict[str, Any],
         data: Any = None,
+        params: Optional[dict[str, Any]] = None,
         json: Optional[dict[str, Any]] = None,
         headers: Optional[dict[str, str]] = None,
     ) -> Response:
@@ -116,7 +121,7 @@ class BaseClient:
     def _delete(
         self,
         endpoint: str,
-        params: dict[str, Any],
+        params: Optional[dict[str, Any]] = None,
         headers: Optional[dict[str, str]] = None,
     ) -> Response:
         """Delete an object from piwik pro"""

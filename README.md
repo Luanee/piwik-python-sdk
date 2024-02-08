@@ -1,6 +1,13 @@
 # Python SDK for Piwik
 
-This is an unofficial Python SDK for piwik pro.
+This is an unofficial Python REST API Wrapper for Piwik Pro.
+
+## DOcumentation
+
+| Module         | API         | Link                                                                                                            |
+| -------------- | ----------- | --------------------------------------------------------------------------------------------------------------- |
+| Administration | Apps        | [Apps API](https://developers.piwik.pro/en/latest/platform/authorized_api/apps/apps_api.html)                   |
+|                | Meta Sites  | [Meta Sites API](https://developers.piwik.pro/en/latest/platform/authorized_api/meta_sites/meta_sites_api.html) |
 
 ## Installation
 

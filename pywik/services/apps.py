@@ -3,7 +3,7 @@ import warnings
 from typing import Literal, Optional
 
 from pywik.base import BaseClient
-from pywik.schemas.apps import AppsPage
+from pywik.schemas.apps import App, AppPermissionsPage, AppUpdateDraft, AppsPage
 
 
 SEARCH = (
@@ -56,28 +56,103 @@ class AppsService:
             "permission": permission,
         }
 
-        response = self._client._get(self._endpoint, params=params)
+        response = self._client._get(
+            self._endpoint,
+            params=params,
+        )
+
         if response.status_code == 200:
-            return AppsPage(**response.json() | {"page": page, "size": size})
-        elif response.status_code in (400, 401, 403, 500, 502, 503):
+            return AppsPage.deserialize(response.json(), page=page, size=size)
+        if response.status_code in (400, 401, 403, 500, 502, 503):
             raise ValueError(response.json())
             # obj = ErrorResponse.deserialize(response.json())
             # raise self._client._create_exception(obj, response)
-        elif response.status_code != 404:
+        if response.status_code != 404:
             warnings.warn("Unhandled status code %d" % response.status_code)
-        else:
-            pass
 
-        return AppsPage(**response.json() | {"page": page, "size": size})
+        return AppsPage.deserialize({"data": []}, page=page, size=size)
 
-    def get(self):
-        return
+    def get(self, id: str) -> App | None:
+        response = self._client._get(
+            f"{self._endpoint}/{id}",
+        )
 
-    def create(self):
-        return
+        if response.status_code == 200:
+            return App.deserialize(response.json())
+        if response.status_code in (400, 401, 403, 500, 502, 503):
+            raise ValueError(response.json())
+        if response.status_code == 404:
+            raise ValueError(f"App with id: {id} could not be found.")
 
-    def delete(self):
-        return
+        warnings.warn("Unhandled status code %d" % response.status_code)
 
-    def update(self):
-        return
+    def create(self, draft: AppUpdateDraft):
+        response = self._client._post(
+            f"{self._endpoint}",
+            json=draft.serialize(),
+        )
+        if response.status_code == 201:
+            return App.deserialize(response.json())
+        if response.status_code in (400, 401, 403, 500, 502, 503):
+            raise ValueError(response.json())
+
+        warnings.warn("Unhandled status code %d" % response.status_code)
+
+    def delete(self, id: str):
+        response = self._client._delete(
+            f"{self._endpoint}/{id}",
+        )
+
+        if response.status_code == 204:
+            return None
+        if response.status_code in (400, 401, 403, 500, 502, 503):
+            raise ValueError(response.json())
+        if response.status_code == 404:
+            raise ValueError(f"App with id: {id} could not be found.")
+
+        warnings.warn("Unhandled status code %d" % response.status_code)
+
+    def update(self, draft: AppUpdateDraft):
+        response = self._client._patch(
+            f"{self._endpoint}/{draft.id}",
+            json=draft.serialize(),
+        )
+
+        if response.status_code == 204:
+            return None
+        if response.status_code in (400, 401, 403, 500, 502, 503):
+            raise ValueError(response.json())
+        if response.status_code == 404:
+            raise ValueError(f"App with id: {draft.id} could not be found.")
+
+        warnings.warn("Unhandled status code %d" % response.status_code)
+
+    def permissions(
+        self,
+        user_group_id: str,
+        search: Optional[str] = None,
+        sort: SEARCH = "name",
+        page: int = 0,
+        size: int = 10,
+    ):
+
+        params = {
+            "search": search,
+            "sort": sort,
+            "limit": size,
+            "offset": page * size,
+        }
+
+        response = self._client._get(
+            f"{self._endpoint}/user-group/{user_group_id}/permissions",
+            params=params,
+        )
+
+        if response.status_code == 204:
+            return AppPermissionsPage.deserialize(response.json(), page=page, size=size)
+        if response.status_code in (400, 401, 403, 500, 502, 503):
+            raise ValueError(response.json())
+        if response.status_code == 404:
+            raise ValueError(f"App permissions for user group id: {user_group_id} couldn't not be found.")
+
+        warnings.warn("Unhandled status code %d" % response.status_code)

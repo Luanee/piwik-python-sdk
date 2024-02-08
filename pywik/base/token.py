@@ -1,6 +1,5 @@
 import threading
 from typing import Any, Protocol
-import urllib.parse
 
 tls = threading.local()
 
