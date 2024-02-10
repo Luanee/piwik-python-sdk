@@ -2,8 +2,8 @@ import warnings
 
 from typing import Literal, Optional
 
-from pywik.base import BaseClient
-from pywik.schemas.apps import App, AppPermissionsPage, AppUpdateDraft, AppsPage
+from piwik.base import BaseClient
+from piwik.schemas.apps import App, AppPermissionsPage, AppsPage, AppUpdateDraft
 
 
 SEARCH = (
@@ -79,12 +79,12 @@ class AppsService:
 
         if response.status_code == 200:
             return App.deserialize(response.json())
-        if response.status_code in (400, 401, 403, 500, 502, 503):
+        elif response.status_code in (400, 401, 403, 500, 502, 503):
             raise ValueError(response.json())
-        if response.status_code == 404:
+        elif response.status_code == 404:
             raise ValueError(f"App with id: {id} could not be found.")
-
-        warnings.warn("Unhandled status code %d" % response.status_code)
+        else:
+            warnings.warn("Unhandled status code %d" % response.status_code)
 
     def create(self, draft: AppUpdateDraft):
         response = self._client._post(

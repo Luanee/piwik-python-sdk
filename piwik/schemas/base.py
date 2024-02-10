@@ -1,6 +1,6 @@
 import datetime
 
-from typing import Any, Generic, Type, TypeVar
+from typing import Any, Generic, Optional, Type, TypeVar
 
 from pydantic import AliasChoices, AliasPath, BaseModel, ConfigDict, Field
 
@@ -49,7 +49,7 @@ TSchema = TypeVar("TSchema", bound=BaseModel)
 
 
 class Page(BaseModel, Generic[TSchema]):
-    model: Type[BaseModel] = Field(exclude=True)
+    # model: Type[BaseModel] = Field(exclude=True)
 
     page: int = Field(default=0)
     size: int = Field(default=10)
@@ -57,7 +57,7 @@ class Page(BaseModel, Generic[TSchema]):
     data: list[TSchema] = Field(validation_alias=AliasPath("data"))
 
     @classmethod
-    def deserialize(cls, data: dict[str, Any], page: int, size: int):
+    def deserialize(cls, data: dict[str, Any], page: int = 0, size: int = 10):
         return cls(**data, page=page, size=size)
 
     def serialize(self) -> dict[str, Any]:
@@ -67,10 +67,19 @@ class Page(BaseModel, Generic[TSchema]):
         return repr(self)
 
     def __repr__(self):
-        return f"Page<{self.model.__name__}>(page={self.page}, size={self.size}, total={self.total})"
+        type_name = "Unknown"
+
+        if self.data and isinstance(self.data[0], BaseModel):
+            type_name = self.data[0].__class__.__name__
+        elif hasattr(self, "__pydantic_generic_metadata__"):
+            for base in self.__pydantic_generic_metadata__.get("args", []):
+                type_name = base.__name__
+                break
+
+        return f"Page<{type_name}>(page={self.page}, size={self.size}, total={self.total})"
 
     def __iter__(self):
         return iter(self.data)
 
-    def __getitem__(self, item):
-        return self.data[item]
+    def __getitem__(self, index: int):
+        return self.data[index]

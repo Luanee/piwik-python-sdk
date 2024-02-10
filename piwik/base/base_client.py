@@ -10,10 +10,10 @@ from oauthlib.oauth2 import BackendApplicationClient
 from requests import Response
 from requests.adapters import HTTPAdapter
 
-from pywik.base.config import ClientConfig
-from pywik.base.http import RefreshingOAuth2Session, RetryHttpAdapter
-from pywik.base.token import BaseTokenStorage, DefaultTokenStorage
-from pywik.version import __version__
+from piwik.base.config import ClientConfig
+from piwik.base.http import RefreshingOAuth2Session, RetryHttpAdapter
+from piwik.base.token import BaseTokenStorage, DefaultTokenStorage
+from piwik.version import __version__
 
 
 class BaseClient:

@@ -1,11 +1,11 @@
 [tool.poetry]
-name = "pywik"
+name = "piwik"
 version = "0.1.0"
 description = ""
 authors = ["Pit Nahrstedt <pit_nahrstedt@web.de>"]
 readme = "README.md"
 packages = [
-    { include = "pywik" },
+    { include = "piwik" },
 ]
 
 [tool.poetry.dependencies]
@@ -66,7 +66,7 @@ lines_after_imports = 2
 [tool.pytest.ini_options]
 minversion = "7.0"
 python_files = "test_*.py"
-addopts = "--cov=pywik --cov-report term-missing:skip-covered"
+addopts = "--cov=piwik --cov-report term-missing:skip-covered"
 testpaths = ["tests"]
 
 [tool.pylint.MAIN]
@@ -114,7 +114,6 @@ exclude_lines = [
   "raise NotImplementedError",
   "if __name__ == .__main__.:",
   "if TYPE_CHECKING:",
-  "if typing.TYPE_CHECKING:"
+  "if typing.TYPE_CHECKING:",
+  "class \\w+\\(Protocol\\):"
 ]
-
-

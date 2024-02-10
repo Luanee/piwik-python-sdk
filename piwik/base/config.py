@@ -13,10 +13,10 @@ load_dotenv()
 
 
 class ClientConfig(BaseSettings):
-    url: str = Field(alias="PIWIK_URL")
+    url: str = Field(default=..., alias="PIWIK_URL")
     auth_url: str = Field(default=None, alias="PIWIK_AUTH_URL")
-    client_id: str = Field(alias="PIWIK_CLIENT_ID")
-    client_secret: SecretStr = Field(alias="PIWIK_CLIENT_SECRET")
+    client_id: str = Field(default=..., alias="PIWIK_CLIENT_ID")
+    client_secret: SecretStr = Field(default=..., alias="PIWIK_CLIENT_SECRET")
 
     model_config = SettingsConfigDict(
         populate_by_name=True,

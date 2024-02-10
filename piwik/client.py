@@ -1,10 +1,10 @@
 from typing import Optional
 
-from pywik.base import BaseClient
-from pywik.base.token import BaseTokenStorage
 from requests.adapters import HTTPAdapter
 
-from pywik.services.apps import AppsService
+from piwik.base import BaseClient
+from piwik.base.token import BaseTokenStorage
+from piwik.services.apps import AppsService
 
 
 class Client(BaseClient):

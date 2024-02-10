@@ -36,21 +36,6 @@ client = Client(
 )
 ```
 
-### Initialize a Client via environment variables
-
-Setup your environments with these variables:
-
-```sh
-export PIWIK_URL="https://<account>.piwik.pro"
-export PIWIK_AUTH_URL="https://<account>.piwik.pro/auth/token"
-export PIWIK_CLIENT_ID="<client-id>"
-export PIWIK_CLIENT_SECRET="<client-secret>"
-```
-
-```python
-client = Client()
-```
-
 ## Examples
 
 ### Search for specific apps
@@ -63,3 +48,5 @@ client = Client()
 page_of_apps = client.apps.list(search="DE", page=0, size=50)
 print(page_of_apps)
 ```
+
+More examples can be found here: [examples](./examples)

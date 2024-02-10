@@ -1,5 +1,7 @@
 import threading
+
 from typing import Any, Protocol
+
 
 tls = threading.local()
 
