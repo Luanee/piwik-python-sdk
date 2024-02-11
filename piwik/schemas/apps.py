@@ -1,10 +1,9 @@
 from typing import Annotated, Any, Literal, Optional, Type
 
-from pydantic import AfterValidator, AliasPath, BaseModel, Field
+from pydantic import AfterValidator, BaseModel, Field
 from typing_extensions import Literal
 
 from piwik.schemas.base import BaseSchema, Page, PathChoices
-from piwik.schemas.decorators import optional
 
 
 def urls_startswith(urls: list[str]):
@@ -181,7 +180,6 @@ class RequestDataSchema(BaseModel):
         return self.model_dump(exclude_unset=True)
 
 
-@optional(exclude={"id", "type"})
 class AppUpdateDraft(App):
     id: str
     type: TYPE = Field(default="ppms/app")

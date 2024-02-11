@@ -30,7 +30,7 @@ class BaseClient:
             client_id=client_id, client_secret=client_secret, url=url, auth_url=auth_url  # pyright: ignore
         )
 
-        self.__token_storage = token_storage or DefaultTokenStorage()
+        self._token_storage = token_storage or DefaultTokenStorage()
         http_adapter = http_adapter or RetryHttpAdapter()
 
         client = BackendApplicationClient(client_id=self._config.client_id)
@@ -43,7 +43,7 @@ class BaseClient:
                 "client_id": self._config.client_id,
                 "client_secret": self._config.client_secret.get_secret_value(),
             },
-            token_updater=self.__token_storage.add_token,
+            token_updater=self._token_storage.add_token,
         )
         self._http_client.headers.update(
             {
@@ -54,7 +54,7 @@ class BaseClient:
         self._http_client.mount("http://", http_adapter)
         self._http_client.mount("https://", http_adapter)
 
-        _token = self.__token_storage.get_token(self._config.client_id)
+        _token = self._token_storage.get_token(self._config.client_id)
 
         if not _token:
             _token = self._http_client.fetch_token(
@@ -62,7 +62,7 @@ class BaseClient:
                 client_id=self._config.client_id,
                 client_secret=self._config.client_secret.get_secret_value(),
             )
-            self.__token_storage.add_token(self._config.client_id, _token)
+            self._token_storage.add_token(self._config.client_id, _token)
         self._http_client.token = _token
 
     @property

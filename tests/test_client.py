@@ -1,11 +1,15 @@
 import pytest
 
+from piwik.base import BaseClient
 from piwik.client import Client
+from tests.conftest import PIWIK_URL, environment
 
 
-@pytest.fixture()
-def environment(monkeypatch):
-    monkeypatch.setenv("PIWIK_CLIENT_ID", "client_id")
-    monkeypatch.setenv("PIWIK_CLIENT_SECRET", "client_secret")
-    monkeypatch.setenv("PIWIK_URL", "https://<account>.piwik.pro")
-    monkeypatch.setenv("PIWIK_AUTH_URL", "https://<account>.piwik.pro/auth/token")
+@environment()
+def test_base_client_initialization(base_client: BaseClient):
+    assert base_client._config.url == PIWIK_URL
+
+
+@environment()
+def test_client_initialization(client: Client):
+    assert client._config.url == PIWIK_URL

@@ -18,4 +18,5 @@ def test_token_storage():
     assert token == TOKEN
 
     token_storage.clear_cache()
+    print(token_storage.storage)
     assert len(token_storage.storage) == 0

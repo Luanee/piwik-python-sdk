@@ -1,62 +1,60 @@
 import os
-import pprint
 
-from contextlib import nullcontext as does_not_raise
-from typing import Type
-from unittest import mock
+from pathlib import Path
 
 import pytest
 
 from pydantic import ValidationError
 
 from piwik.base.config import ClientConfig
-from tests.conftest import active_piwik_environment, inactive_piwik_environment
+from tests.conftest import environment
 
 
-@pytest.mark.parametrize(
-    "config,data,environment,exception",
-    [
-        (
-            ClientConfig,
-            {
-                "client_id": "client_id",
-                "client_secret": "client_secret",
-                "url": "https://<account>.piwik.pro",
-                "auth_url": "https://<account>.piwik.pro/auth/token",
-            },
-            None,
-            does_not_raise(),
-        ),  # type: ignore
-        (
-            ClientConfig,
-            {"_env_file": "./test.env"},
-            None,
-            does_not_raise(),
-        ),  # type: ignore
-        (
-            ClientConfig,
-            {"_env_file": None},
-            {
-                "PIWIK_URL": "https://<account>.piwik.pro",
-                "PIWIK_AUTH_URL": "https://<account>.piwik.pro/auth/token",
-                "PIWIK_CLIENT_ID": "client_id",
-                "PIWIK_CLIENT_SECRET": "client_secret",
-            },
-            does_not_raise(),
-        ),  # type: ignore
-        (
-            ClientConfig,
-            {"_env_file": None},
-            {},
-            pytest.raises(ValidationError),
-        ),  # type: ignore
-    ],
+@environment()
+def test_client_config_init():
+    ClientConfig(
+        client_id="client_id",
+        client_secret="client_secret",  # type: ignore
+        url="https://<account>.piwik.pro",
+        auth_url="https://<account>.piwik.pro/auth/token",
+    )
+
+
+@environment()
+def test_client_config_init_incorrect_auth_url():
+    ClientConfig(
+        client_id="client_id",
+        client_secret="client_secret",  # type: ignore
+        url="https://<account>.piwik.pro",
+        auth_url="https://<account>.piwik.pro",
+    )
+
+
+@environment()
+def test_client_config_init_without_auth_url():
+    ClientConfig(
+        client_id="client_id",
+        client_secret="client_secret",  # type: ignore
+        url="https://<account>.piwik.pro",
+    )
+
+
+@environment()
+def test_client_config_env_file():
+    ClientConfig(_env_file=Path(os.getcwd()) / "tests" / "test.env")  # type: ignore
+
+
+@environment(
+    PIWIK_URL="https://<account>.piwik.pro",
+    PIWIK_AUTH_URL="https://<account>.piwik.pro/auth/token",
+    PIWIK_CLIENT_ID="client_id",
+    PIWIK_CLIENT_SECRET="client_secret",
 )
-def test_client_config(config: Type[ClientConfig], data: dict, environment, exception):
-    if environment is not None:
-        with mock.patch.dict(os.environ, environment, clear=True):
-            with exception as es:
-                c = config(**data)
-    else:
-        with exception as es:
-            c = config(**data)
+def test_client_config_environment():
+    ClientConfig()
+
+
+@environment()
+def test_client_config_invalid():
+    with pytest.raises(ValidationError):
+        ClientConfig()

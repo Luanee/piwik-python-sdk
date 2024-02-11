@@ -13,6 +13,9 @@ class BaseTokenStorage(Protocol):
 
     def create_token_hash(self, client_id: str): ...
 
+    @classmethod
+    def clear_cache(cls): ...
+
 
 class DefaultTokenStorage(BaseTokenStorage):
     @property
