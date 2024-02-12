@@ -2,6 +2,8 @@ import warnings
 
 from typing import Literal, Optional
 
+from pydantic import Field
+
 from piwik.base import BaseClient
 from piwik.schemas.apps import App, AppPermissionsPage, AppsPage, AppUpdateDraft
 

@@ -14,7 +14,7 @@ class ClientConfig(BaseSettings):
     client_id: str = Field(default=..., validation_alias="PIWIK_CLIENT_ID")
     client_secret: SecretStr = Field(default=..., validation_alias="PIWIK_CLIENT_SECRET")
 
-    model_config = SettingsConfigDict(populate_by_name=True, extra="ignore")
+    model_config = SettingsConfigDict(populate_by_name=True, env_file=".env", extra="ignore")
 
     # @field_validator("url", "client_id", "client_secret")
     # @classmethod

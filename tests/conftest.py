@@ -1,6 +1,5 @@
 import os
 
-from typing import cast
 from unittest import mock
 
 import pytest
@@ -26,22 +25,25 @@ def environment(**envvars):
 
 
 @pytest.fixture
-def requests_mocker():
-    mocker = requests_mock.Mocker()
-    mocker.register_uri(
+def adapter():
+    yield requests_mock.Mocker()
+
+
+@pytest.fixture
+def adapter_token(adapter: requests_mock.Mocker):
+    adapter.register_uri(
         "POST",
         PIWIK_AUTH_URL,
         json=PIWIK_TOKEN,
         status_code=200,
     )
 
-    yield mocker
+    yield adapter
 
 
 @pytest.fixture
-def base_client(requests_mocker):
-    with requests_mocker:
-
+def base_client(adapter_token: requests_mock.Mocker):
+    with adapter_token:
         token_storage = DefaultTokenStorage()
         token_storage.add_token(PIWIK_CLIENT_ID, PIWIK_TOKEN)
 
@@ -56,8 +58,8 @@ def base_client(requests_mocker):
 
 
 @pytest.fixture
-def client(requests_mocker):
-    with requests_mocker:
+def client(adapter_token: requests_mock.Mocker):
+    with adapter_token:
         client = Client(
             url=PIWIK_URL,
             auth_url=PIWIK_AUTH_URL,

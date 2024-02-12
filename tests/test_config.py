@@ -10,9 +10,13 @@ from piwik.base.config import ClientConfig
 from tests.conftest import environment
 
 
+ClientConfigMock = ClientConfig
+ClientConfigMock.model_config["env_file"] = None
+
+
 @environment()
 def test_client_config_init():
-    ClientConfig(
+    ClientConfigMock(
         client_id="client_id",
         client_secret="client_secret",  # type: ignore
         url="https://<account>.piwik.pro",
@@ -22,7 +26,7 @@ def test_client_config_init():
 
 @environment()
 def test_client_config_init_incorrect_auth_url():
-    ClientConfig(
+    ClientConfigMock(
         client_id="client_id",
         client_secret="client_secret",  # type: ignore
         url="https://<account>.piwik.pro",
@@ -32,7 +36,7 @@ def test_client_config_init_incorrect_auth_url():
 
 @environment()
 def test_client_config_init_without_auth_url():
-    ClientConfig(
+    ClientConfigMock(
         client_id="client_id",
         client_secret="client_secret",  # type: ignore
         url="https://<account>.piwik.pro",
@@ -41,7 +45,7 @@ def test_client_config_init_without_auth_url():
 
 @environment()
 def test_client_config_env_file():
-    ClientConfig(_env_file=Path(os.getcwd()) / "tests" / "test.env")  # type: ignore
+    ClientConfigMock(_env_file=Path(os.getcwd()) / "tests" / "test.env")  # type: ignore
 
 
 @environment(
@@ -51,7 +55,7 @@ def test_client_config_env_file():
     PIWIK_CLIENT_SECRET="client_secret",
 )
 def test_client_config_environment():
-    ClientConfig()
+    ClientConfigMock()
 
 
 @environment()
