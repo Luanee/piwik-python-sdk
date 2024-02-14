@@ -1,9 +1,14 @@
-from typing import Annotated, Any, Literal, Optional, Type
+from typing import Annotated, Any, Literal, Optional
 
 from pydantic import AfterValidator, BaseModel, Field
 from typing_extensions import Literal
 
-from piwik.schemas.base import BaseSchema, Page, PathChoices
+from piwik.schemas.base import (
+    BaseSchema,
+    Page,
+    PathChoices,
+    RequestDataMixin,
+)
 
 
 def urls_startswith(urls: list[str]):
@@ -38,18 +43,7 @@ class BaseApp(BaseSchema):
         return f"BaseApp(id={self.id}, name='{self.name}')"
 
 
-# class AppsPage(Page[BaseApp]):
-#     model: Type[BaseModel] = BaseApp
 AppsPage = Page[BaseApp]
-
-
-class AppPermission(BaseModel):
-    name: str = Field(validation_alias=PathChoices("data.attributes.app_name"))
-    access: str = Field(validation_alias=PathChoices("data.attributes.access"))
-
-
-class AppPermissionsPage(Page[BaseApp]):
-    model: Type[BaseModel] = BaseApp
 
 
 class App(BaseApp):
@@ -167,32 +161,17 @@ class App(BaseApp):
         return cls(**data)
 
 
-class RequestAttributesSchema(BaseModel):
-    type: str
-    id: Optional[str] = Field(default=None)
-    attributes: dict[str, Any]
-
-
-class RequestDataSchema(BaseModel):
-    data: RequestAttributesSchema
-
-    def serialize(self) -> dict[str, Any]:
-        return self.model_dump(exclude_unset=True)
-
-
-class AppUpdateDraft(App):
+class AppUpdateDraft(RequestDataMixin, App):
     id: str
     type: TYPE = Field(default="ppms/app")
     name: Optional[str] = Field(default=None, max_length=90)
     urls: Optional[URLS] = Field(default=None)
 
-    def serialize(self) -> dict[str, Any]:
-        attributes = self.model_dump(exclude={"id", "type"}, exclude_unset=True)
-        data = RequestAttributesSchema(id=self.id, type=self.type, attributes=attributes)
-        return RequestDataSchema(data=data).serialize()
+    def serialize(self):
+        return RequestDataMixin.serialize(self, exclude={"id", "type"})
 
 
-class AppCreateDraft(BaseModel):
+class AppCreateDraft(RequestDataMixin, BaseModel):
     type: TYPE = Field(default="ppms/app")
     app_type: AppType = "web"
     name: str = Field(default=..., max_length=90)
@@ -228,7 +207,10 @@ class AppCreateDraft(BaseModel):
     cnil: bool = Field(default=False)
     sessionIdStrictPrivacyMode: bool = Field(default=False)
 
-    def serialize(self) -> dict[str, Any]:
-        attributes = self.model_dump(exclude={"type"}, exclude_unset=True)
-        data = RequestAttributesSchema(type=self.type, attributes=attributes)
-        return RequestDataSchema(data=data).serialize()
+    def serialize(self):
+        return RequestDataMixin.serialize(self, exclude={"type"})
+
+
+class AppPermission(BaseSchema):
+    name: str = Field(validation_alias=PathChoices("data.attributes.app_name"))
+    access: str = Field(validation_alias=PathChoices("data.attributes.access"))

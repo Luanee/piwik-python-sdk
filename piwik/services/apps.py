@@ -5,7 +5,8 @@ from typing import Literal, Optional
 from pydantic import Field
 
 from piwik.base import BaseClient
-from piwik.schemas.apps import App, AppPermissionsPage, AppsPage, AppUpdateDraft
+from piwik.schemas.apps import App, AppCreateDraft, AppPermission, AppUpdateDraft, BaseApp
+from piwik.schemas.base import Page
 
 
 SEARCH = (
@@ -34,7 +35,7 @@ class AppsService:
         page: int = 0,
         size: int = 10,
         permission: Optional[PERMISSIONS] = None,
-    ) -> AppsPage:
+    ) -> Page[BaseApp]:
         """Get list of apps
 
         Args:
@@ -47,7 +48,7 @@ class AppsService:
             ValueError: _description_
 
         Returns:
-            AppsPage: _description_
+            Page[BaseApp]: _description_
         """
 
         params = {
@@ -64,15 +65,15 @@ class AppsService:
         )
 
         if response.status_code == 200:
-            return AppsPage.deserialize(response.json(), page=page, size=size)
+            return Page[BaseApp].deserialize(response.json(), page=page, size=size)
         if response.status_code in (400, 401, 403, 500, 502, 503):
-            raise ValueError(response.json())
+            raise ValueError(f"{str(response.json())}")
             # obj = ErrorResponse.deserialize(response.json())
             # raise self._client._create_exception(obj, response)
         if response.status_code != 404:
-            warnings.warn("Unhandled status code %d" % response.status_code)
+            warnings.warn(f"Unhandled status code: {response.status_code}")
 
-        return AppsPage.deserialize({"data": []}, page=page, size=size)
+        return Page[BaseApp].deserialize({"data": []}, page=page, size=size)
 
     def get(self, id: str) -> App | None:
         response = self._client._get(
@@ -86,9 +87,9 @@ class AppsService:
         elif response.status_code == 404:
             raise ValueError(f"App with id: {id} could not be found.")
         else:
-            warnings.warn("Unhandled status code %d" % response.status_code)
+            warnings.warn(f"Unhandled status code: {response.status_code}")
 
-    def create(self, draft: AppUpdateDraft):
+    def create(self, draft: AppCreateDraft):
         response = self._client._post(
             f"{self._endpoint}",
             json=draft.serialize(),
@@ -98,7 +99,7 @@ class AppsService:
         if response.status_code in (400, 401, 403, 500, 502, 503):
             raise ValueError(response.json())
 
-        warnings.warn("Unhandled status code %d" % response.status_code)
+        warnings.warn(f"Unhandled status code: {response.status_code}")
 
     def delete(self, id: str):
         response = self._client._delete(
@@ -112,7 +113,7 @@ class AppsService:
         if response.status_code == 404:
             raise ValueError(f"App with id: {id} could not be found.")
 
-        warnings.warn("Unhandled status code %d" % response.status_code)
+        warnings.warn(f"Unhandled status code: {response.status_code}")
 
     def update(self, draft: AppUpdateDraft):
         response = self._client._patch(
@@ -127,7 +128,7 @@ class AppsService:
         if response.status_code == 404:
             raise ValueError(f"App with id: {draft.id} could not be found.")
 
-        warnings.warn("Unhandled status code %d" % response.status_code)
+        warnings.warn(f"Unhandled status code: {response.status_code}")
 
     def permissions(
         self,
@@ -150,11 +151,11 @@ class AppsService:
             params=params,
         )
 
-        if response.status_code == 204:
-            return AppPermissionsPage.deserialize(response.json(), page=page, size=size)
+        if response.status_code == 200:
+            return Page[AppPermission].deserialize(response.json(), page=page, size=size)
         if response.status_code in (400, 401, 403, 500, 502, 503):
             raise ValueError(response.json())
         if response.status_code == 404:
             raise ValueError(f"App permissions for user group id: {user_group_id} couldn't not be found.")
 
-        warnings.warn("Unhandled status code %d" % response.status_code)
+        warnings.warn(f"Unhandled status code: {response.status_code}")

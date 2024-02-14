@@ -53,7 +53,7 @@ class Page(BaseModel, Generic[TSchema]):
 
     page: int = Field(default=0)
     size: int = Field(default=10)
-    total: int = Field(validation_alias=AliasPath("meta", "total"))
+    total: int = Field(validation_alias=AliasPath("meta", "total"), default=0)
     data: list[TSchema] = Field(validation_alias=AliasPath("data"))
 
     @classmethod
@@ -83,3 +83,15 @@ class Page(BaseModel, Generic[TSchema]):
 
     def __getitem__(self, index: int):
         return self.data[index]
+
+
+class RequestDataMixin(BaseModel):
+    def serialize(self, exclude: Optional[set] = None) -> dict[str, Any]:
+        data = self.model_dump(include=exclude)
+        attributes = self.model_dump(exclude=exclude, exclude_unset=True)
+        return {
+            "data": {
+                **data,
+                "attributes": attributes,
+            }
+        }

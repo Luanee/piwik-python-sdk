@@ -1,4 +1,5 @@
 from contextlib import nullcontext as does_not_raise
+import pprint
 from typing import Any
 
 import pytest
@@ -6,92 +7,20 @@ import pytest
 from pydantic import ValidationError
 
 from piwik.schemas import apps
+from tests.data.apps import RESPONSE_DATA_APP, RESPONSE_DATA_BASE_APP, RESPONSE_DATA_PERMISSION_BASE
+from tests.utils.helper import prepare_page_data
 
 
 def test_deserialize_app():
-    app = apps.App.deserialize(
-        {
-            "data": {
-                "type": "ppms/app",
-                "id": "cb093b59-045d-47eb-8c6e-0a7fbf15b14b",
-                "attributes": {
-                    "name": "Demo site",
-                    "addedAt": "2024-02-07T20:03:33+00:00",
-                    "updatedAt": "2024-02-07T22:40:02+00:00",
-                    "urls": ["https://demo.org"],
-                    "timezone": "UTC",
-                    "currency": "USD",
-                    "excludeUnknownUrls": False,
-                    "keepUrlFragment": True,
-                    "eCommerceTracking": True,
-                    "siteSearchTracking": True,
-                    "siteSearchQueryParams": ["q", "query", "s", "search", "searchword", "keyword"],
-                    "siteSearchCategoryParams": [],
-                    "delay": 500,
-                    "excludedIps": [],
-                    "excludedUrlParams": [
-                        "gclid",
-                        "fbclid",
-                        "fb_xd_fragment",
-                        "fb_comment_id",
-                        "phpsessid",
-                        "jsessionid",
-                        "sessionid",
-                        "aspsessionid",
-                        "doing_wp_cron",
-                        "sid",
-                        "pk_vid",
-                    ],
-                    "excludedUserAgents": [],
-                    "gdpr": True,
-                    "gdprUserModeEnabled": False,
-                    "privacyCookieDomainsEnabled": False,
-                    "privacyCookieExpirationPeriod": 31536000,
-                    "privacyCookieDomains": [],
-                    "organization": "demo",
-                    "appType": "web",
-                    "gdprLocationRecognition": True,
-                    "gdprDataAnonymization": True,
-                    "sharepointIntegration": False,
-                    "gdprDataAnonymizationMode": "session_cookie_id",
-                    "privacyUseCookies": True,
-                    "privacyUseFingerprinting": True,
-                    "cnil": False,
-                    "sessionIdStrictPrivacyMode": False,
-                },
-            }
-        }
-    )
+    app = apps.App.deserialize(RESPONSE_DATA_APP)
     assert app.id == "cb093b59-045d-47eb-8c6e-0a7fbf15b14b"
     assert app.name == "Demo site"
     assert app.currency == "USD"
 
 
 def test_deserialize_apps_page():
-    page_of_apps = apps.AppsPage.deserialize(
-        {
-            "meta": {"total": 2},
-            "data": [
-                {
-                    "type": "ppms/app",
-                    "id": "cb093b59-045d-47eb-8c6e-0a7fbf15b14b",
-                    "attributes": {
-                        "name": "Demo site",
-                        "addedAt": "2024-02-07T20:03:33+00:00",
-                        "updatedAt": "2024-02-07T20:03:33+00:00",
-                    },
-                },
-                {
-                    "type": "ppms/app",
-                    "id": "cb093b59-045d-47eb-8c6e-0a7fbf15b14c",
-                    "attributes": {
-                        "name": "Demo site 2",
-                        "addedAt": "2024-02-07T20:03:33+00:00",
-                        "updatedAt": "2024-02-07T22:40:02+00:00",
-                    },
-                },
-            ],
-        },
+    page_of_apps = apps.Page[apps.BaseApp].deserialize(
+        prepare_page_data(RESPONSE_DATA_BASE_APP, 2),
         page=0,
         size=3,
     )
@@ -101,11 +30,8 @@ def test_deserialize_apps_page():
     assert len(page_of_apps.data) == 2
     assert repr(page_of_apps) == "Page<BaseApp>(page=0, size=3, total=2)"
 
-    page_of_apps = apps.AppsPage.deserialize(
-        {
-            "meta": {"total": 0},
-            "data": [],
-        },
+    page_of_apps = apps.Page[apps.BaseApp].deserialize(
+        prepare_page_data(RESPONSE_DATA_BASE_APP, 0),
         page=0,
         size=3,
     )
@@ -156,3 +82,27 @@ def test_serialize_app_update_draft(draft: dict[str, Any], exception):
         assert app_update_draft_serialized["data"]["type"] == app_update_draft.type
         assert app_update_draft_serialized["data"]["attributes"]["name"] == app_update_draft.name
         assert app_update_draft_serialized["data"]["attributes"]["urls"] == app_update_draft.urls
+
+
+def test_serialize_app_permission():
+    page_of_app_permissions = apps.Page[apps.AppPermission].deserialize(
+        prepare_page_data(RESPONSE_DATA_PERMISSION_BASE, 2),
+        page=0,
+        size=3,
+    )
+    assert page_of_app_permissions.total == 2
+    assert page_of_app_permissions.page == 0
+    assert page_of_app_permissions.size == 3
+    assert len(page_of_app_permissions.data) == 2
+    assert repr(page_of_app_permissions) == "Page<AppPermission>(page=0, size=3, total=2)"
+
+    page_of_app_permissions = apps.Page[apps.AppPermission].deserialize(
+        prepare_page_data(RESPONSE_DATA_PERMISSION_BASE, 0),
+        page=0,
+        size=3,
+    )
+    assert page_of_app_permissions.total == 0
+    assert page_of_app_permissions.page == 0
+    assert page_of_app_permissions.size == 3
+    assert len(page_of_app_permissions.data) == 0
+    assert repr(page_of_app_permissions) == "Page<AppPermission>(page=0, size=3, total=0)"
