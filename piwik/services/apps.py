@@ -13,9 +13,11 @@ SEARCH = (
     Literal["name"]
     | Literal["addedAt"]
     | Literal["updatedAt"]
+    | Literal["cnil"]
     | Literal["-name"]
     | Literal["-addedAt"]
     | Literal["-updatedAt"]
+    | Literal["-cnil"]
 )
 
 PERMISSIONS = Literal["view"] | Literal["edit"] | Literal["publish"] | Literal["manage"]
