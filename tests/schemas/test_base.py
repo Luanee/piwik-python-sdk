@@ -4,16 +4,17 @@ import pytest
 
 from pydantic import BaseModel
 
-from piwik.schemas import base
+from piwik.schemas import base, page
 
 
-class PageTestModel(BaseModel):
+class PageTestModel(base.BaseSchema):
     id: str
+    type: str = "type"
 
 
 @pytest.fixture
 def page_of_test_models():
-    return base.Page[PageTestModel].deserialize(
+    return page.Page[PageTestModel].deserialize(
         {
             "meta": {"total": 1},
             "data": [{"id": "id"}],
@@ -33,7 +34,7 @@ def base_schema():
     )
 
 
-def test_page_deserialization(page_of_test_models: base.Page[PageTestModel]):
+def test_page_deserialization(page_of_test_models: page.Page[PageTestModel]):
     assert page_of_test_models.page == 0
     assert page_of_test_models.size == 10
     assert page_of_test_models.total == 1
@@ -41,14 +42,14 @@ def test_page_deserialization(page_of_test_models: base.Page[PageTestModel]):
     assert repr(page_of_test_models) == "Page<PageTestModel>(page=0, size=10, total=1)"
 
 
-def test_page_serialization(page_of_test_models: base.Page[PageTestModel]):
+def test_page_serialization(page_of_test_models: page.Page[PageTestModel]):
     data = page_of_test_models.serialize()
 
     assert isinstance(data, dict)
     assert all(True if key in ["page", "size", "total", "data"] else False for key in data.keys())
 
 
-def test_page_iteration(page_of_test_models: base.Page[PageTestModel]):
+def test_page_iteration(page_of_test_models: page.Page[PageTestModel]):
     for p in page_of_test_models:
         assert p.id == "id"
 
@@ -56,7 +57,7 @@ def test_page_iteration(page_of_test_models: base.Page[PageTestModel]):
         assert p.id == "id"
 
 
-def test_page_getter(page_of_test_models: base.Page[PageTestModel]):
+def test_page_getter(page_of_test_models: page.Page[PageTestModel]):
     assert page_of_test_models[0].id == "id"
 
 
