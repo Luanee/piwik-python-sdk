@@ -23,10 +23,18 @@ class SerializeMixin(BaseModel):
 class ReprMixin(BaseModel):
     __repr_fields__: set[str] = {"id"}
 
+    def __str__(self):
+        return repr(self)
+
     def __repr__(self):
+        def _repr_field(key: str, value: Any):
+            if isinstance(value, str):
+                value = f"'{value}'"
+            return f"{key}={value}"
+
         fields = self.model_dump(include=self.__repr_fields__)
         description = ",".join(
-            [f"{key}='{value}'" for key, value in fields.items() if not (key == "id" and value is None)]
+            [_repr_field(key, value) for key, value in fields.items() if not (key == "id" and value is None)]
         )
         return f"{self.__class__.__name__}({description})"
 
@@ -50,9 +58,6 @@ class BaseSchema(DeserializeMixin, SerializeMixin, ReprMixin):
     )
 
     model_config = ConfigDict(populate_by_name=True)
-
-    def __str__(self):
-        return repr(self)
 
 
 class BaseSite(BaseSchema):

@@ -8,6 +8,7 @@ from piwik.schemas.base import (
     CreateRequestDataMixin,
     DeserializeMixin,
     PathChoices,
+    ReprMixin,
     SerializeMixin,
     UpdateRequestDataMixin,
 )
@@ -68,7 +69,9 @@ class SiteContainer(BaseModel):
         return {"data": [{"type": self.type, "id": id} for id in self.ids]}
 
 
-class SiteIntegrity(DeserializeMixin, SerializeMixin):
+class SiteIntegrity(DeserializeMixin, SerializeMixin, ReprMixin):
+    __repr_fields__: set[str] = {"id", "is_currency_valid", "is_timezone_valid"}
+
     type: str = Field(
         validation_alias=PathChoices("data.type"),
         frozen=True,
