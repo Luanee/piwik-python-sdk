@@ -1,16 +1,18 @@
 import re
+
 from typing import Optional, Type
 
 import pytest
 import requests_mock
-from piwik.schemas.apps import AppCreateDraft, AppUpdateDraft
+
 from piwik.client import Client
+from piwik.schemas.apps import AppCreateDraft, AppUpdateDraft
 from tests.conftest import PIWIK_URL, client
 from tests.data.apps import (
-    RESPONSE_DATA_APP,
-    RESPONSE_DATA_BASE_APP,
     APP_CREATE_DRAFT,
     APP_UPDATE_DRAFT,
+    RESPONSE_DATA_APP,
+    RESPONSE_DATA_BASE_APP,
     RESPONSE_DATA_PERMISSION_BASE,
 )
 from tests.utils.helper import exception_handler, prepare_page_data
@@ -47,7 +49,7 @@ def test_service_apps_list_endpoint(
     adapter.register_uri("GET", re.compile(f"{endpoint}.*"), status_code=status_code, json=data)
 
     with exception_handler(exception):
-        client.apps.list()
+        client.administration.apps.list()
 
 
 @pytest.mark.parametrize(
@@ -75,7 +77,7 @@ def test_service_apps_get_endpoint(
     adapter.register_uri("GET", re.compile(f"{endpoint}/.*"), status_code=status_code, json=data)
 
     with exception_handler(exception):
-        client.apps.get(id)
+        client.administration.apps.get(id)
 
 
 @pytest.mark.parametrize(
@@ -103,7 +105,7 @@ def test_service_apps_delete_endpoint(
     adapter.register_uri("DELETE", re.compile(f"{endpoint}/.*"), status_code=status_code, json=data)
 
     with exception_handler(exception):
-        client.apps.delete(id)
+        client.administration.apps.delete(id)
 
 
 @pytest.mark.parametrize(
@@ -130,7 +132,7 @@ def test_service_apps_create_endpoint(
     adapter.register_uri("POST", re.compile(f"{endpoint}"), status_code=status_code, json=data)
 
     with exception_handler(exception):
-        client.apps.create(draft)
+        client.administration.apps.create(draft)
 
 
 @pytest.mark.parametrize(
@@ -158,7 +160,7 @@ def test_service_apps_update_endpoint(
     adapter.register_uri("PATCH", re.compile(f"{endpoint}/.*"), status_code=status_code, json=data)
 
     with exception_handler(exception):
-        client.apps.update(draft)
+        client.administration.apps.update(draft)
 
 
 @pytest.mark.parametrize(
@@ -186,4 +188,4 @@ def test_service_apps_permissions_endpoint(
     adapter.register_uri("GET", re.compile(f"{endpoint}/user-group/.*/permissions"), status_code=status_code, json=data)
 
     with exception_handler(exception):
-        client.apps.permissions(id)
+        client.administration.apps.permissions(id)

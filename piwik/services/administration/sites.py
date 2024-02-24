@@ -13,7 +13,8 @@ from piwik.schemas.sites import (
     SiteIntegrity,
     SiteUpdateDraft,
 )
-from piwik.services.apps import SEARCH
+
+from .apps import SEARCH
 
 
 class SitesService:

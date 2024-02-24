@@ -1,3 +1,1 @@
-from .apps import AppsService
-
-__all__ = ["AppsService"]
+from .administration import AdministrationServices

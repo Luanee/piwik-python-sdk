@@ -50,7 +50,7 @@ def test_service_sites_list_endpoint(
     adapter.register_uri("GET", re.compile(f"{endpoint}.*"), status_code=status_code, json=data)
 
     with exception_handler(exception):
-        client.sites.list()
+        client.administration.sites.list()
 
 
 @pytest.mark.parametrize(
@@ -80,7 +80,7 @@ def test_service_sites_list_apps_endpoint(
     adapter.register_uri("GET", re.compile(f"{endpoint}.*"), status_code=status_code, json=data)
 
     with exception_handler(exception):
-        client.sites.list_apps(id)
+        client.administration.sites.list_apps(id)
 
 
 @pytest.mark.parametrize(
@@ -110,7 +110,7 @@ def test_service_sites_list_all_sites_endpoint(
     adapter.register_uri("GET", re.compile(f"{endpoint}.*"), status_code=status_code, json=data)
 
     with exception_handler(exception):
-        client.sites.list_all_sites(id)
+        client.administration.sites.list_all_sites(id)
 
 
 @pytest.mark.parametrize(
@@ -138,7 +138,7 @@ def test_service_sites_get_endpoint(
     adapter.register_uri("GET", re.compile(f"{endpoint}/.*"), status_code=status_code, json=data)
 
     with exception_handler(exception):
-        client.sites.get(id)
+        client.administration.sites.get(id)
 
 
 @pytest.mark.parametrize(
@@ -166,7 +166,7 @@ def test_service_sites_delete_endpoint(
     adapter.register_uri("DELETE", re.compile(f"{endpoint}/.*"), status_code=status_code, json=data)
 
     with exception_handler(exception):
-        client.sites.delete(id)
+        client.administration.sites.delete(id)
 
 
 @pytest.mark.parametrize(
@@ -193,7 +193,7 @@ def test_service_sites_create_endpoint(
     adapter.register_uri("POST", re.compile(f"{endpoint}"), status_code=status_code, json=data)
 
     with exception_handler(exception):
-        client.sites.create(draft)
+        client.administration.sites.create(draft)
 
 
 @pytest.mark.parametrize(
@@ -221,7 +221,7 @@ def test_service_sites_update_endpoint(
     adapter.register_uri("PATCH", re.compile(f"{endpoint}/.*"), status_code=status_code, json=data)
 
     with exception_handler(exception):
-        client.sites.update(draft)
+        client.administration.sites.update(draft)
 
 
 @pytest.mark.parametrize(
@@ -250,7 +250,7 @@ def test_service_sites_add_apps_endpoint(
     adapter.register_uri("POST", re.compile(f"{endpoint}/{id}/relationships/apps"), status_code=status_code, json=data)
 
     with exception_handler(exception):
-        client.sites.add_apps(id, ids)
+        client.administration.sites.add_apps(id, ids)
 
 
 @pytest.mark.parametrize(
@@ -281,7 +281,7 @@ def test_service_sites_delete_apps_endpoint(
     )
 
     with exception_handler(exception):
-        client.sites.delete_apps(id, ids)
+        client.administration.sites.delete_apps(id, ids)
 
 
 @pytest.mark.parametrize(
@@ -309,4 +309,4 @@ def test_service_site_integrity_endpoint(
     adapter.register_uri("GET", re.compile(f"{endpoint}/{id}/apps/integrity"), status_code=status_code, json=data)
 
     with exception_handler(exception):
-        client.sites.validate(id)
+        client.administration.sites.validate(id)

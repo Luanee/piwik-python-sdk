@@ -4,8 +4,7 @@ from requests.adapters import HTTPAdapter
 
 from piwik.base import BaseClient
 from piwik.base.token import BaseTokenStorage
-from piwik.services.apps import AppsService
-from piwik.services.sites import SitesService
+from piwik.services.administration import AdministrationServices
 
 
 class Client(BaseClient):
@@ -29,9 +28,5 @@ class Client(BaseClient):
         )
 
     @property
-    def apps(self):
-        return AppsService(self)
-
-    @property
-    def sites(self):
-        return SitesService(self)
+    def administration(self):
+        return AdministrationServices(self)
