@@ -2,20 +2,21 @@ import warnings
 
 from typing import Literal, Optional
 
-from pydantic import Field
-
 from piwik.base import BaseClient
-from piwik.schemas.apps import App, AppCreateDraft, AppPermission, AppUpdateDraft, BaseApp
-from piwik.schemas.base import Page
+from piwik.schemas.apps import App, AppCreateDraft, AppPermission, AppUpdateDraft
+from piwik.schemas.base import BaseSite
+from piwik.schemas.page import Page
 
 
 SEARCH = (
     Literal["name"]
     | Literal["addedAt"]
     | Literal["updatedAt"]
+    | Literal["cnil"]
     | Literal["-name"]
     | Literal["-addedAt"]
     | Literal["-updatedAt"]
+    | Literal["-cnil"]
 )
 
 PERMISSIONS = Literal["view"] | Literal["edit"] | Literal["publish"] | Literal["manage"]
@@ -35,7 +36,7 @@ class AppsService:
         page: int = 0,
         size: int = 10,
         permission: Optional[PERMISSIONS] = None,
-    ) -> Page[BaseApp]:
+    ) -> Page[BaseSite]:
         """Get list of apps
 
         Args:
@@ -65,7 +66,7 @@ class AppsService:
         )
 
         if response.status_code == 200:
-            return Page[BaseApp].deserialize(response.json(), page=page, size=size)
+            return Page[BaseSite].deserialize(response.json(), page=page, size=size)
         if response.status_code in (400, 401, 403, 500, 502, 503):
             raise ValueError(f"{str(response.json())}")
             # obj = ErrorResponse.deserialize(response.json())
@@ -73,7 +74,7 @@ class AppsService:
         if response.status_code != 404:
             warnings.warn(f"Unhandled status code: {response.status_code}")
 
-        return Page[BaseApp].deserialize({"data": []}, page=page, size=size)
+        return Page[BaseSite].deserialize(page=page, size=size)
 
     def get(self, id: str) -> App | None:
         response = self._client._get(

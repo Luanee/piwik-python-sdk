@@ -1,25 +1,28 @@
-from contextlib import nullcontext as does_not_raise
 import pprint
+
+from contextlib import nullcontext as does_not_raise
 from typing import Any
 
 import pytest
 
 from pydantic import ValidationError
 
-from piwik.schemas import apps
+from piwik.schemas.apps import App, AppCreateDraft, AppPermission, AppUpdateDraft
+from piwik.schemas.base import BaseSite
+from piwik.schemas.page import Page
 from tests.data.apps import RESPONSE_DATA_APP, RESPONSE_DATA_BASE_APP, RESPONSE_DATA_PERMISSION_BASE
 from tests.utils.helper import prepare_page_data
 
 
 def test_deserialize_app():
-    app = apps.App.deserialize(RESPONSE_DATA_APP)
+    app = App.deserialize(RESPONSE_DATA_APP)
     assert app.id == "cb093b59-045d-47eb-8c6e-0a7fbf15b14b"
     assert app.name == "Demo site"
     assert app.currency == "USD"
 
 
 def test_deserialize_apps_page():
-    page_of_apps = apps.Page[apps.BaseApp].deserialize(
+    page_of_apps = Page[BaseSite].deserialize(
         prepare_page_data(RESPONSE_DATA_BASE_APP, 2),
         page=0,
         size=3,
@@ -28,9 +31,9 @@ def test_deserialize_apps_page():
     assert page_of_apps.page == 0
     assert page_of_apps.size == 3
     assert len(page_of_apps.data) == 2
-    assert repr(page_of_apps) == "Page<BaseApp>(page=0, size=3, total=2)"
+    assert repr(page_of_apps) == "Page<BaseSite>(page=0, size=3, total=2)"
 
-    page_of_apps = apps.Page[apps.BaseApp].deserialize(
+    page_of_apps = Page[BaseSite].deserialize(
         prepare_page_data(RESPONSE_DATA_BASE_APP, 0),
         page=0,
         size=3,
@@ -39,7 +42,7 @@ def test_deserialize_apps_page():
     assert page_of_apps.page == 0
     assert page_of_apps.size == 3
     assert len(page_of_apps.data) == 0
-    assert repr(page_of_apps) == "Page<BaseApp>(page=0, size=3, total=0)"
+    assert repr(page_of_apps) == "Page<BaseSite>(page=0, size=3, total=0)"
 
 
 @pytest.mark.parametrize(
@@ -52,7 +55,7 @@ def test_deserialize_apps_page():
 )
 def test_serialize_app_create_draft(draft: dict[str, Any], exception):
     with exception as e:
-        app_create_draft = apps.AppCreateDraft(**draft)
+        app_create_draft = AppCreateDraft(**draft)
 
         app_create_draft_serialized = app_create_draft.serialize()
 
@@ -64,17 +67,27 @@ def test_serialize_app_create_draft(draft: dict[str, Any], exception):
 @pytest.mark.parametrize(
     "draft,exception",
     [
-        ({"id": "id", "name": "Demo Site 3", "urls": ["https://demosite3.com"]}, does_not_raise()),
-        ({"id": "id", "name": "Demo Site 3", "urls": ["demosite3.com"]}, pytest.raises(ValidationError)),
+        (
+            {"id": "id", "name": "Demo Site 3", "urls": ["https://demosite3.com"]},
+            does_not_raise(),
+        ),
+        (
+            {"id": "id", "name": "Demo Site 3", "urls": ["demosite3.com"]},
+            pytest.raises(ValidationError),
+        ),
         (
             {"id": "id", "name": "Demo Site 3", "urls": ["https://demosite3.com"], "type": "apps"},
+            pytest.raises(ValidationError),
+        ),
+        (
+            {"id": None, "name": "Demo Site 3", "urls": ["https://demosite3.com"], "type": "apps"},
             pytest.raises(ValidationError),
         ),
     ],
 )
 def test_serialize_app_update_draft(draft: dict[str, Any], exception):
     with exception as e:
-        app_update_draft = apps.AppUpdateDraft(**draft)
+        app_update_draft = AppUpdateDraft(**draft)
 
         app_update_draft_serialized = app_update_draft.serialize()
 
@@ -85,7 +98,7 @@ def test_serialize_app_update_draft(draft: dict[str, Any], exception):
 
 
 def test_serialize_app_permission():
-    page_of_app_permissions = apps.Page[apps.AppPermission].deserialize(
+    page_of_app_permissions = Page[AppPermission].deserialize(
         prepare_page_data(RESPONSE_DATA_PERMISSION_BASE, 2),
         page=0,
         size=3,
@@ -96,7 +109,7 @@ def test_serialize_app_permission():
     assert len(page_of_app_permissions.data) == 2
     assert repr(page_of_app_permissions) == "Page<AppPermission>(page=0, size=3, total=2)"
 
-    page_of_app_permissions = apps.Page[apps.AppPermission].deserialize(
+    page_of_app_permissions = Page[AppPermission].deserialize(
         prepare_page_data(RESPONSE_DATA_PERMISSION_BASE, 0),
         page=0,
         size=3,

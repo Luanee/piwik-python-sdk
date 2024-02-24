@@ -1,70 +1,39 @@
-from typing import Annotated, Any, Literal, Optional
+from typing import Annotated, Any, Literal, Optional, get_args
 
-from pydantic import AfterValidator, BaseModel, Field
-from typing_extensions import Literal
+from pydantic import AfterValidator, Field
 
-from piwik.schemas.base import (
-    BaseSchema,
-    Page,
-    PathChoices,
-    RequestDataMixin,
-)
+from piwik.schemas.base import BaseSchema, BaseSite, CreateRequestDataMixin, UpdateRequestDataMixin
+from piwik.schemas.utils import PathChoices, urls_startswith
 
 
-def urls_startswith(urls: list[str]):
-    if all(
-        url.startswith(
-            "http://",
-        )
-        or url.startswith(
-            "https://",
-        )
-        for url in urls
-    ):
-        return urls
-    raise ValueError(
-        "URLs should start with one of: 'http://' or 'https://'.",
-    )
+AppType = Literal["ppms/app"]
+APP_TYPE: AppType = get_args(AppType)[0]
 
-
-TYPE = Literal["ppms/app"]
-AppType = Literal["web"] | Literal["sharepoint"] | Literal["demo"]
+AppTypes = Literal["web"] | Literal["sharepoint"] | Literal["demo"]
 GDPR = Literal["no_device_storage"] | Literal["session_cookie_id"]
 URLS = Annotated[list[str], AfterValidator(urls_startswith)]
 
 
-class BaseApp(BaseSchema):
-    name: str = Field(validation_alias=PathChoices("data.attributes.name"))
+class App(BaseSite):
+    type: AppType = Field(default=APP_TYPE)
 
-    def __str__(self):
-        return repr(self)
-
-    def __repr__(self):
-        return f"BaseApp(id={self.id}, name='{self.name}')"
-
-
-AppsPage = Page[BaseApp]
-
-
-class App(BaseApp):
     organization: str = Field(
         default=False,
         validation_alias=PathChoices("data.attributes.organization"),
     )
-    app_type: AppType = Field(
-        default=False,
+    app_type: AppTypes = Field(
+        default="web",
         validation_alias=PathChoices("data.attributes.appType"),
     )
     urls: URLS = Field(
-        default=False,
         validation_alias=PathChoices("data.attributes.urls"),
     )
     timezone: str = Field(
-        default=False,
+        default="UTC",
         validation_alias=PathChoices("data.attributes.timezone"),
     )
     currency: str = Field(
-        default=False,
+        default="USD",
         validation_alias=PathChoices("data.attributes.currency"),
     )
     excludeUnknownUrls: bool = Field(
@@ -161,54 +130,15 @@ class App(BaseApp):
         return cls(**data)
 
 
-class AppUpdateDraft(RequestDataMixin, App):
+class AppUpdateDraft(UpdateRequestDataMixin, App):
     id: str
-    type: TYPE = Field(default="ppms/app")
-    name: Optional[str] = Field(default=None, max_length=90)
+    type: AppType = Field(default=APP_TYPE)
+    name: Optional[str] = Field(default=None)
     urls: Optional[URLS] = Field(default=None)
 
-    def serialize(self):
-        return RequestDataMixin.serialize(self, exclude={"id", "type"})
 
-
-class AppCreateDraft(RequestDataMixin, BaseModel):
-    type: TYPE = Field(default="ppms/app")
-    app_type: AppType = "web"
-    name: str = Field(default=..., max_length=90)
-    urls: URLS
-    timezone: str = Field(
-        default="UTC",
-    )
-    currency: str = Field(
-        default="USD",
-    )
-    excludeUnknownUrls: bool = Field(default=False)
-    keepUrlFragment: bool = Field(default=True)
-    eCommerceTracking: bool = Field(default=True)
-    siteSearchQueryParams: list[str] = Field(default=["q", "query", "s", "search", "searchword", "keyword"])
-    siteSearchCategoryParams: list = Field(default_factory=list)
-    delay: int = Field(default=500)
-    excludedIps: list[str] = Field(default_factory=list)
-    excludedUrlParams: list[str] = Field(default_factory=list)
-    excludedUserAgents: list[str] = Field(default_factory=list)
-    gdpr: bool = Field(default=True)
-    gdprUserModeEnabled: bool = Field(default=False)
-    privacyCookieDomainsEnabled: bool = Field(default=False)
-    privacyCookieExpirationPeriod: int = Field(default=31536000)
-    privacyCookieDomains: list[str] = Field(default_factory=list)
-    gdprLocationRecognition: bool = Field(default=True)
-    gdprDataAnonymization: bool = Field(default=True)
-    sharepointIntegration: bool = Field(default=False)
-    gdprDataAnonymizationMode: GDPR = Field(
-        default="session_cookie_id",
-    )
-    privacyUseCookies: bool = Field(default=True)
-    privacyUseFingerprinting: bool = Field(default=True)
-    cnil: bool = Field(default=False)
-    sessionIdStrictPrivacyMode: bool = Field(default=False)
-
-    def serialize(self):
-        return RequestDataMixin.serialize(self, exclude={"type"})
+class AppCreateDraft(CreateRequestDataMixin, App):
+    id: None = None
 
 
 class AppPermission(BaseSchema):
