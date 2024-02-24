@@ -1,6 +1,7 @@
 import inspect
+import pprint
 
-from typing import Callable, Optional
+from typing import Callable, Optional, Type
 
 from pydantic import AliasChoices, AliasPath, BaseModel
 
@@ -55,13 +56,13 @@ def optional(
             fields = ((k, v) for k, v in fields.items() if k in include)
 
         return create_model(
-            model.__name__,
+            f"Partial{model.__name__}",
             __base__=model,
             __module__=model.__module__,
             **{
                 field_name: make_optional(field_info)
                 for field_name, field_info in fields
-                if exclude is None or field_name not in exclude
+                if (exclude is None or field_name not in exclude)
             },  # type: ignore
         )
 

@@ -32,8 +32,6 @@ class ReprMixin(BaseModel):
 
 
 class BaseSchema(DeserializeMixin, SerializeMixin, ReprMixin):
-    # __repr_fields__: set[str] = {"id"}
-
     type: str = Field(
         validation_alias=PathChoices("data.type"),
         frozen=True,
@@ -42,7 +40,7 @@ class BaseSchema(DeserializeMixin, SerializeMixin, ReprMixin):
         validation_alias=PathChoices("data.id"),
         frozen=True,
     )
-    addedAt: datetime.datetime = Field(
+    addedAt: Optional[datetime.datetime] = Field(
         default=None,
         validation_alias=PathChoices("data.attributes.addedAt"),
     )
@@ -53,22 +51,8 @@ class BaseSchema(DeserializeMixin, SerializeMixin, ReprMixin):
 
     model_config = ConfigDict(populate_by_name=True)
 
-    # @classmethod
-    # def deserialize(cls, data: dict[str, Any]):
-    #     return cls(**data)
-
-    # def serialize(self) -> dict[str, Any]:
-    #     return self.model_dump()
-
     def __str__(self):
         return repr(self)
-
-    # def __repr__(self):
-    #     fields = self.model_dump(include=self.__repr_fields__)
-    #     description = ",".join(
-    #         [f"{key}='{value}'" for key, value in fields.items() if not (key == "id" and value is None)]
-    #     )
-    #     return f"{self.__class__.__name__}({description})"
 
 
 class BaseSite(BaseSchema):

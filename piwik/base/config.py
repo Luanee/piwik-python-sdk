@@ -5,7 +5,7 @@ import urllib.parse
 from typing import Optional
 
 from pydantic import Field, SecretStr, ValidationInfo, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, SettingsConfigDict
 
 
 class ClientConfig(BaseSettings):
@@ -15,16 +15,6 @@ class ClientConfig(BaseSettings):
     client_secret: SecretStr = Field(default=..., validation_alias="PIWIK_CLIENT_SECRET")
 
     model_config = SettingsConfigDict(populate_by_name=True, env_file=".env", extra="ignore")
-
-    # @field_validator("url", "client_id", "client_secret")
-    # @classmethod
-    # def validate_env_variables(cls, value: Optional[str | SecretStr], info: ValidationInfo):
-    #     """Safety"""
-    #     if not value:
-    #         if info.field_name in info.data:
-    #             return info.data[info.field_name]
-    #         raise ValueError(f"{info.field_name} should not be missing")
-    #     return value
 
     @field_validator("auth_url", mode="before")
     @classmethod

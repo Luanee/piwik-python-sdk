@@ -122,6 +122,7 @@ class BaseClient:
         self,
         endpoint: str,
         params: Optional[dict[str, Any]] = None,
+        json: Optional[dict[str, Any]] = None,
         headers: Optional[dict[str, str]] = None,
     ) -> Response:
         """Delete an object from piwik pro"""
@@ -129,5 +130,6 @@ class BaseClient:
         return self._http_client.delete(
             f"{self._config.url}{endpoint}",
             params=params,
+            json=json,
             headers=headers,
         )

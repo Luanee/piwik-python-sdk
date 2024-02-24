@@ -1,26 +1,27 @@
-from typing import Annotated, Any, Literal
+from typing import Annotated, Any, Literal, Optional, get_args
 
 from pydantic import AfterValidator, Field
-from typing_extensions import Literal
 
-from piwik.schemas.base import BaseSchema, BaseSite, CreateRequestDataMixin, RequestDataMixin, UpdateRequestDataMixin
-from piwik.schemas.utils import PathChoices, optional, urls_startswith
+from piwik.schemas.base import BaseSchema, BaseSite, CreateRequestDataMixin, UpdateRequestDataMixin
+from piwik.schemas.utils import PathChoices, urls_startswith
 
 
-TYPE = Literal["ppms/app"]
-AppType = Literal["web"] | Literal["sharepoint"] | Literal["demo"]
+AppType = Literal["ppms/app"]
+APP_TYPE: AppType = get_args(AppType)[0]
+
+AppTypes = Literal["web"] | Literal["sharepoint"] | Literal["demo"]
 GDPR = Literal["no_device_storage"] | Literal["session_cookie_id"]
 URLS = Annotated[list[str], AfterValidator(urls_startswith)]
 
 
 class App(BaseSite):
-    type: TYPE = Field(default="ppms/app")
+    type: AppType = Field(default=APP_TYPE)
 
     organization: str = Field(
         default=False,
         validation_alias=PathChoices("data.attributes.organization"),
     )
-    app_type: AppType = Field(
+    app_type: AppTypes = Field(
         default="web",
         validation_alias=PathChoices("data.attributes.appType"),
     )
@@ -129,14 +130,15 @@ class App(BaseSite):
         return cls(**data)
 
 
-@optional(exclude={"id", "type"})
 class AppUpdateDraft(UpdateRequestDataMixin, App):
-    pass
+    id: str
+    type: AppType = Field(default=APP_TYPE)
+    name: Optional[str] = Field(default=None)
+    urls: Optional[URLS] = Field(default=None)
 
 
-@optional(exclude={"name", "urls", "type"})
 class AppCreateDraft(CreateRequestDataMixin, App):
-    pass
+    id: None = None
 
 
 class AppPermission(BaseSchema):

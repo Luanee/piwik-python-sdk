@@ -67,7 +67,7 @@ lines_after_imports = 2
 [tool.pytest.ini_options]
 minversion = "7.0"
 python_files = "test_*.py"
-addopts = "--cov=piwik --cov-report term-missing:skip-covered"
+addopts = "--cov=piwik --cov-report term-missing"
 testpaths = ["tests"]
 
 [tool.pylint.MAIN]
@@ -104,7 +104,7 @@ logging-format-style = "new"
 branch = true
 source = ["data_engineering_services", "tests"]
 # * Maybee we need this later when we have some fixtures (code that runs at every test but isn't a test)
-# omit = ["tests/fixtures/*"]
+omit = ["**/*/__init__.py"]
 
 [tool.coverage.report]
 exclude_lines = [

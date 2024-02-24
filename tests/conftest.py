@@ -1,4 +1,5 @@
 import os
+import pprint
 
 from unittest import mock
 
@@ -21,6 +22,11 @@ PIWIK_TOKEN = {
 
 
 def environment(**envvars):
+    os.environ = {
+        key: value
+        for key, value in os.environ.items()
+        if key not in ["PIWIK_URL", "PIWIK_AUTH_URL", "PIWIK_CLIENT_ID", "PIWIK_CLIENT_SECRET"]
+    }
     return mock.patch.dict(os.environ, envvars)
 
 

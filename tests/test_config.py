@@ -48,6 +48,12 @@ def test_client_config_env_file():
     ClientConfigMock(_env_file=Path(os.getcwd()) / "tests" / "test.env")  # type: ignore
 
 
+@environment()
+def test_client_config_invalid():
+    with pytest.raises(ValidationError):
+        ClientConfig()
+
+
 @environment(
     PIWIK_URL="https://<account>.piwik.pro",
     PIWIK_AUTH_URL="https://<account>.piwik.pro/auth/token",
@@ -56,9 +62,3 @@ def test_client_config_env_file():
 )
 def test_client_config_environment():
     ClientConfigMock()
-
-
-@environment()
-def test_client_config_invalid():
-    with pytest.raises(ValidationError):
-        ClientConfig()
