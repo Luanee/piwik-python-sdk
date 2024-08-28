@@ -35,5 +35,17 @@ class RawAnalyticsParameter(PaginationMixin, DateRangeMixin, RelativeDateMixin):
 
         return values
 
-    def as_body(self):
+    def serialize(self):
         return self.model_dump(exclude={"page", "size"}, exclude_none=True)
+
+
+class QueryAnalyticsParameter(RawAnalyticsParameter):
+    sampling: Optional[float] = Field(default=None, gt=0, le=1)
+
+    def serialize(self):
+        data = self.model_dump(exclude={"page", "size", "sampling"}, exclude_none=True)
+        options = self.model_dump(include={"sampling"}, exclude_none=True, exclude_unset=True)
+        return {
+            **data,
+            "options": options,
+        }
