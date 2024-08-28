@@ -1,11 +1,9 @@
 import datetime
-
 from typing import Any, Optional, Sequence
-
 
 from piwik.base import BaseService
 from piwik.schemas.raw import RawAnalyticsParameter
-from piwik.schemas.types import Column, RELATIVE_DATE, FORMAT, COLUMN_FORMAT
+from piwik.schemas.types import COLUMN_FORMAT, FORMAT, RELATIVE_DATE, Column
 
 
 class RealTimeEventsService(BaseService):
@@ -40,7 +38,7 @@ class RealTimeEventsService(BaseService):
 
         response = self._client._post(
             f"{self._endpoint}/",
-            json=query.as_body(),
+            json=query.serialize(),
             headers=headers,
         )
         response.raise_for_status()
