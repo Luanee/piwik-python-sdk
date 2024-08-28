@@ -2,13 +2,12 @@ from contextlib import nullcontext as does_not_raise
 from typing import Any
 
 import pytest
-
 from pydantic import ValidationError
 
 from piwik.schemas.base import BaseSite
 from piwik.schemas.page import Page
 from piwik.schemas.sites import Site, SiteContainer, SiteCreateDraft, SiteIntegrity, SiteUpdateDraft
-from tests.data.apps import RESPONSE_DATA_APP, RESPONSE_DATA_BASE_APP, RESPONSE_DATA_PERMISSION_BASE
+from tests.data.apps import RESPONSE_DATA_APP, RESPONSE_DATA_BASE_APP
 from tests.data.sites import RESPONSE_DATA_SITE_INTEGRITY_BASE
 from tests.utils.helper import prepare_page_data
 
@@ -93,8 +92,8 @@ def test_serialize_site_update_draft(draft: dict[str, Any], exception):
 def test_serialize_site_integrity():
     site_integrity = SiteIntegrity.deserialize(RESPONSE_DATA_SITE_INTEGRITY_BASE)
     assert site_integrity.type == "meta-site/apps/integrity"
-    assert site_integrity.is_currency_valid == True
-    assert site_integrity.is_timezone_valid == False
+    assert site_integrity.is_currency_valid is True
+    assert site_integrity.is_timezone_valid is False
 
 
 def test_serialize_site_container():

@@ -1,6 +1,5 @@
 from piwik.schemas.sites import SiteCreateDraft, SiteUpdateDraft
 
-
 RESPONSE_DATA_SITE = {
     "data": {
         "id": "6edb1e3c-4c43-4760-ab76-682ad83146be",
@@ -21,9 +20,9 @@ RESPONSE_DATA_SITE = {
 
 RESPONSE_DATA_BASE_SITE = {
     "type": "ppms/meta-site",
-    "id": f"cb093b59-045d-47eb-8c6e-0a7fbf15b11b",
+    "id": "cb093b59-045d-47eb-8c6e-0a7fbf15b11b",
     "attributes": {
-        "name": f"Demo site 1",
+        "name": "Demo site 1",
         "addedAt": "2024-02-07T20:03:33+00:00",
         "updatedAt": "2024-02-07T20:03:33+00:00",
     },
@@ -31,9 +30,9 @@ RESPONSE_DATA_BASE_SITE = {
 
 RESPONSE_DATA_META_SITE_APP = {
     "type": "ppms/app",
-    "id": f"cb093b59-045d-47eb-8c6e-0a7fbf15b11b",
+    "id": "cb093b59-045d-47eb-8c6e-0a7fbf15b11b",
     "attributes": {
-        "name": f"Demo site 1",
+        "name": "Demo site 1",
         "addedAt": "2024-02-07T20:03:33+00:00",
         "updatedAt": "2024-02-07T20:03:33+00:00",
         "currency": "USD",

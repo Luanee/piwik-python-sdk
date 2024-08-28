@@ -7,7 +7,7 @@ import requests_mock
 
 from piwik.client import Client
 from piwik.schemas.sites import SiteCreateDraft, SiteUpdateDraft
-from tests.conftest import PIWIK_URL, client
+from tests.conftest import PIWIK_URL
 from tests.data.sites import (
     RESPONSE_DATA_BASE_SITE,
     RESPONSE_DATA_META_SITE_APP,
