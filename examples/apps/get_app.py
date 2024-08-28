@@ -6,5 +6,5 @@ client = Client()
 
 ID = "<app-id>"
 
-app: App | None = client.apps.get(id=ID)
+app: App | None = client.administration.apps.get(id=ID)
 print(app)

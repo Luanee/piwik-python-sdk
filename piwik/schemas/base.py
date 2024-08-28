@@ -1,23 +1,19 @@
-import datetime
-
 from typing import Any, Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from piwik.schemas.utils import PathChoices
+from piwik.schemas.utils import DateTimeString, PathChoices
 
 
 class DeserializeMixin(BaseModel):
-
     @classmethod
     def deserialize(cls, data: dict[str, Any]):
         return cls(**data)
 
 
 class SerializeMixin(BaseModel):
-
     def serialize(self) -> dict[str, Any]:
-        return self.model_dump()
+        return self.model_dump(by_alias=True)
 
 
 class ReprMixin(BaseModel):
@@ -48,22 +44,37 @@ class BaseSchema(DeserializeMixin, SerializeMixin, ReprMixin):
         validation_alias=PathChoices("data.id"),
         frozen=True,
     )
-    addedAt: Optional[datetime.datetime] = Field(
-        default=None,
-        validation_alias=PathChoices("data.attributes.addedAt"),
-    )
-    updatedAt: Optional[datetime.datetime] = Field(
-        default=None,
-        validation_alias=PathChoices("data.attributes.updatedAt"),
-    )
 
     model_config = ConfigDict(populate_by_name=True)
 
+    @field_validator("*", mode="before")
+    def validate_empty_strings(cls, value: Any):
+        if value == "":
+            return None
+        return value
 
-class BaseSite(BaseSchema):
+
+class DateMixin(BaseModel):
+    created_at: Optional[DateTimeString] = Field(
+        default=None,
+        validation_alias=PathChoices("data.attributes.addedAt"),
+        serialization_alias="addedAt",
+    )
+    updated_at: Optional[DateTimeString] = Field(
+        default=None,
+        validation_alias=PathChoices("data.attributes.updatedAt"),
+        serialization_alias="updatedAt",
+    )
+
+
+class BaseSite(BaseSchema, DateMixin):
     __repr_fields__: set[str] = {"id", "name"}
 
-    name: str = Field(default=..., max_length=90, validation_alias=PathChoices("data.attributes.name"))
+    name: str = Field(
+        default=...,
+        max_length=90,
+        validation_alias=PathChoices("data.attributes.name"),
+    )
 
 
 class RequestDataMixin(BaseModel):
@@ -84,6 +95,5 @@ class UpdateRequestDataMixin(RequestDataMixin):
 
 
 class CreateRequestDataMixin(RequestDataMixin):
-
     def serialize(self):
         return RequestDataMixin.serialize(self, exclude={"type"})

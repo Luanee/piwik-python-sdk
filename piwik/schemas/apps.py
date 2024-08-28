@@ -1,8 +1,14 @@
-from typing import Annotated, Any, Literal, Optional, get_args
+from typing import Annotated, Literal, Optional, get_args
 
 from pydantic import AfterValidator, Field
 
-from piwik.schemas.base import BaseSchema, BaseSite, CreateRequestDataMixin, UpdateRequestDataMixin
+from piwik.schemas.base import (
+    BaseSchema,
+    BaseSite,
+    CreateRequestDataMixin,
+    DateMixin,
+    UpdateRequestDataMixin,
+)
 from piwik.schemas.utils import PathChoices, urls_startswith
 
 
@@ -125,10 +131,6 @@ class App(BaseSite):
         validation_alias=PathChoices("data.attributes.sessionIdStrictPrivacyMode"),
     )
 
-    @classmethod
-    def deserialize(cls, data: dict[str, Any]):
-        return cls(**data)
-
 
 class AppUpdateDraft(UpdateRequestDataMixin, App):
     id: str
@@ -141,6 +143,6 @@ class AppCreateDraft(CreateRequestDataMixin, App):
     id: None = None
 
 
-class AppPermission(BaseSchema):
+class AppPermission(BaseSchema, DateMixin):
     name: str = Field(validation_alias=PathChoices("data.attributes.app_name"))
     access: str = Field(validation_alias=PathChoices("data.attributes.access"))

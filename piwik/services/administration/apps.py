@@ -139,7 +139,6 @@ class AppsService:
         page: int = 0,
         size: int = 10,
     ):
-
         params = {
             "search": search,
             "sort": sort,
@@ -153,10 +152,14 @@ class AppsService:
         )
 
         if response.status_code == 200:
-            return Page[AppPermission].deserialize(response.json(), page=page, size=size)
+            return Page[AppPermission].deserialize(
+                response.json(), page=page, size=size
+            )
         if response.status_code in (400, 401, 403, 500, 502, 503):
             raise ValueError(response.json())
         if response.status_code == 404:
-            raise ValueError(f"App permissions for user group id: {user_group_id} couldn't not be found.")
+            raise ValueError(
+                f"App permissions for user group id: {user_group_id} couldn't not be found."
+            )
 
         warnings.warn(f"Unhandled status code: {response.status_code}")
