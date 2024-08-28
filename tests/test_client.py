@@ -1,5 +1,3 @@
-import pytest
-
 from piwik.base import BaseClient
 from piwik.client import Client
 from tests.conftest import PIWIK_URL, environment

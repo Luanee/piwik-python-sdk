@@ -7,7 +7,7 @@ import requests_mock
 
 from piwik.client import Client
 from piwik.schemas.apps import AppCreateDraft, AppUpdateDraft
-from tests.conftest import PIWIK_URL, client
+from tests.conftest import PIWIK_URL
 from tests.data.apps import (
     APP_CREATE_DRAFT,
     APP_UPDATE_DRAFT,

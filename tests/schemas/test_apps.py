@@ -1,10 +1,7 @@
-import pprint
-
 from contextlib import nullcontext as does_not_raise
 from typing import Any
 
 import pytest
-
 from pydantic import ValidationError
 
 from piwik.schemas.apps import App, AppCreateDraft, AppPermission, AppUpdateDraft
@@ -54,7 +51,7 @@ def test_deserialize_apps_page():
     ],
 )
 def test_serialize_app_create_draft(draft: dict[str, Any], exception):
-    with exception as e:
+    with exception:
         app_create_draft = AppCreateDraft(**draft)
 
         app_create_draft_serialized = app_create_draft.serialize()

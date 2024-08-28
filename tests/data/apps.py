@@ -1,6 +1,5 @@
 from piwik.schemas.apps import AppCreateDraft, AppUpdateDraft
 
-
 RESPONSE_DATA_APP = {
     "data": {
         "type": "ppms/app",
@@ -55,9 +54,9 @@ RESPONSE_DATA_APP = {
 
 RESPONSE_DATA_BASE_APP = {
     "type": "ppms/app",
-    "id": f"cb093b59-045d-47eb-8c6e-0a7fbf15b11b",
+    "id": "cb093b59-045d-47eb-8c6e-0a7fbf15b11b",
     "attributes": {
-        "name": f"Demo site 1",
+        "name": "Demo site 1",
         "addedAt": "2024-02-07T20:03:33+00:00",
         "updatedAt": "2024-02-07T20:03:33+00:00",
     },

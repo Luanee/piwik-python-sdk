@@ -1,5 +1,3 @@
-import pytest
-
 from piwik.base.token import DefaultTokenStorage
 
 
