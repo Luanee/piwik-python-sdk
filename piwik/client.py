@@ -5,6 +5,7 @@ from requests.adapters import HTTPAdapter
 from piwik.base import BaseClient
 from piwik.base.token import BaseTokenStorage
 from piwik.services.administration import AdministrationServices
+from piwik.services.analytics import AnalyticsServices
 
 
 class Client(BaseClient):
@@ -30,3 +31,7 @@ class Client(BaseClient):
     @property
     def administration(self):
         return AdministrationServices(self)
+
+    @property
+    def analytics(self):
+        return AnalyticsServices(self)

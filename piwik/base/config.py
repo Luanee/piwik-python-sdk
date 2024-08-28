@@ -5,7 +5,7 @@ import urllib.parse
 from typing import Optional
 
 from pydantic import Field, SecretStr, ValidationInfo, field_validator
-from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, SettingsConfigDict
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class ClientConfig(BaseSettings):

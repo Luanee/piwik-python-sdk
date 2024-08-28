@@ -6,6 +6,7 @@ from requests.adapters import HTTPAdapter
 class RefreshingOAuth2Session(OAuth2Session):
     def refresh_token(self, token_url, **kwargs):
         kwargs.update(self.auto_refresh_kwargs)
+        kwargs.pop("grant_type")
         return self.fetch_token(token_url, **kwargs)
 
 

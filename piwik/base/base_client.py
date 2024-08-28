@@ -1,9 +1,7 @@
 from __future__ import annotations
 
 import platform
-import pprint
 import sys
-
 from typing import Any, Optional
 
 from oauthlib.oauth2 import BackendApplicationClient
@@ -27,7 +25,10 @@ class BaseClient:
         http_adapter: Optional[HTTPAdapter] = None,
     ) -> None:
         self._config = ClientConfig(
-            client_id=client_id, client_secret=client_secret, url=url, auth_url=auth_url  # pyright: ignore
+            client_id=client_id,  # pyright: ignore
+            client_secret=client_secret,  # pyright: ignore
+            url=url,  # pyright: ignore
+            auth_url=auth_url,  # pyright: ignore
         )
 
         self._token_storage = token_storage or DefaultTokenStorage()
@@ -45,6 +46,7 @@ class BaseClient:
             },
             token_updater=self._token_storage.add_token,
         )
+
         self._http_client.headers.update(
             {
                 "User-Agent": self._user_agent,
