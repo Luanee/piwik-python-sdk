@@ -38,7 +38,6 @@ class CustomDimensionsService(BaseService):
             error = ExceptionResponse.deserialize(response)
             raise self._client._raise_for_status(error, response)
 
-        warnings.warn("Unhandled status code %d" % response.status_code)
         if response.status_code != 404:
             warnings.warn(f"Unhandled status code: {response.status_code}")
 
