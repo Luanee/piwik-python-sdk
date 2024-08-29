@@ -2,7 +2,7 @@ import warnings
 
 from piwik.base import BaseService
 from piwik.exceptions import ExceptionResponse
-from piwik.schemas.dimensions import (
+from piwik.schemas.custom_dimensions import (
     CustomDimension,
     CustomDimensionCreateDraft,
     CustomDimensionSlots,

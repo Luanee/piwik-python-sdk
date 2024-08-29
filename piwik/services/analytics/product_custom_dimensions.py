@@ -2,12 +2,12 @@ import warnings
 
 from piwik.base import BaseService
 from piwik.exceptions import ExceptionResponse
-from piwik.schemas.dimensions import (
-    ProductDimension,
-    ProductDimensionCreateDraft,
-    ProductDimensionUpdateDraft,
-)
 from piwik.schemas.page import Page
+from piwik.schemas.product_custom_dimensions import (
+    ProductCustomDimension,
+    ProductCustomDimensionCreateDraft,
+    ProductCustomDimensionUpdateDraft,
+)
 
 
 class ProductCustomDimensionsService(BaseService):
@@ -31,7 +31,7 @@ class ProductCustomDimensionsService(BaseService):
         )
 
         if response.status_code == 200:
-            return Page[ProductDimension].deserialize(response.json(), page=page, size=size)
+            return Page[ProductCustomDimension].deserialize(response.json(), page=page, size=size)
 
         if response.status_code in (400, 401, 403, 500, 502, 503):
             error = ExceptionResponse.deserialize(response)
@@ -40,7 +40,7 @@ class ProductCustomDimensionsService(BaseService):
         if response.status_code != 404:
             warnings.warn(f"Unhandled status code: {response.status_code}")
 
-        return Page[ProductDimension].deserialize(page=page, size=size)
+        return Page[ProductCustomDimension].deserialize(page=page, size=size)
 
     def get(self, id: str, website_id: str):
         response = self._client._get(
@@ -49,7 +49,7 @@ class ProductCustomDimensionsService(BaseService):
         )
 
         if response.status_code == 200:
-            return ProductDimension.deserialize(response.json())
+            return ProductCustomDimension.deserialize(response.json())
 
         if response.status_code in (400, 401, 403, 404, 500, 502, 503):
             error = ExceptionResponse.deserialize(response)
@@ -57,13 +57,13 @@ class ProductCustomDimensionsService(BaseService):
 
         warnings.warn("Unhandled status code %d" % response.status_code)
 
-    def create(self, draft: ProductDimensionCreateDraft):
+    def create(self, draft: ProductCustomDimensionCreateDraft):
         response = self._client._post(
             f"{self._endpoint}",
             json=draft.serialize(),
         )
         if response.status_code == 201:
-            return ProductDimension.deserialize(response.json())
+            return ProductCustomDimension.deserialize(response.json())
 
         if response.status_code in (400, 401, 403, 500, 502, 503):
             error = ExceptionResponse.deserialize(response)
@@ -71,7 +71,7 @@ class ProductCustomDimensionsService(BaseService):
 
         warnings.warn("Unhandled status code %d" % response.status_code)
 
-    def update(self, draft: ProductDimensionUpdateDraft):
+    def update(self, draft: ProductCustomDimensionUpdateDraft):
         response = self._client._patch(
             f"{self._endpoint}/{draft.id}",
             json=draft.serialize(),
