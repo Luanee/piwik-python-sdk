@@ -2,7 +2,8 @@ from typing import Any, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from piwik.schemas.utils import DateTimeString, PathChoices
+from piwik.schemas.types import PathChoices
+from piwik.schemas.utils import DateTimeString
 
 
 class DeserializeMixin(BaseModel):
@@ -57,12 +58,12 @@ class BaseSchema(DeserializeMixin, SerializeMixin, ReprMixin):
 class DateMixin(BaseModel):
     created_at: Optional[DateTimeString] = Field(
         default=None,
-        validation_alias=PathChoices("data.attributes.addedAt"),
+        validation_alias=PathChoices("data.attributes.addedAt", "data.attributes.created_at"),
         serialization_alias="addedAt",
     )
     updated_at: Optional[DateTimeString] = Field(
         default=None,
-        validation_alias=PathChoices("data.attributes.updatedAt"),
+        validation_alias=PathChoices("data.attributes.updatedAt", "data.attributes.updated_at"),
         serialization_alias="updatedAt",
     )
 

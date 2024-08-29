@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from enum import Enum
 from typing import Any, Literal, Optional
 
@@ -44,9 +45,13 @@ class LogicOperator(Enum):
 
 
 class PathChoices(AliasChoices):
-    def __init__(self, field: str) -> None:
-        fields = field.split(".")
-        paths = [AliasPath(*fields[index:]) for index, _ in enumerate(reversed(fields))]
+    def __init__(self, field: str, *choices: str) -> None:
+        paths = []
+
+        for choice in [field, *choices]:
+            fields = choice.split(".")
+            paths.extend(AliasPath(*fields[index:]) for index, _ in enumerate(reversed(fields)))
+
         super().__init__(*paths)
 
 

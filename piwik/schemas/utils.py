@@ -1,7 +1,7 @@
 import datetime
-from typing import Annotated
+from typing import Annotated, Any, Optional
 
-from pydantic import AliasChoices, AliasPath, PlainSerializer
+from pydantic import PlainSerializer
 
 
 def urls_startswith(urls: list[str]):
@@ -20,11 +20,18 @@ def urls_startswith(urls: list[str]):
     )
 
 
-class PathChoices(AliasChoices):
-    def __init__(self, field: str) -> None:
-        fields = field.split(".")
-        paths = [AliasPath(*fields[index:]) for index, _ in enumerate(reversed(fields))]
-        super().__init__(*paths)
+def validate_comma_separated_string(parameter: str, field: Any, value: Optional[str]):
+    if not value:
+        return value
+
+    valid_values = field.type_.__args__
+
+    if all(chunk.strip() in valid_values for chunk in value.split(",")):
+        return value
+
+    raise ValueError(
+        f"Parameter {parameter} should contain comma-separated strings of: {valid_values}.",
+    )
 
 
 DateString = Annotated[datetime.date, PlainSerializer(lambda x: x.strftime("%Y-%m-%d"), return_type=str)]

@@ -9,8 +9,8 @@ from piwik.schemas.base import (
     DateMixin,
     UpdateRequestDataMixin,
 )
-from piwik.schemas.utils import PathChoices, urls_startswith
-
+from piwik.schemas.types import PathChoices
+from piwik.schemas.utils import urls_startswith
 
 AppType = Literal["ppms/app"]
 APP_TYPE: AppType = get_args(AppType)[0]
