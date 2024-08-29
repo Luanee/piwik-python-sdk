@@ -16,6 +16,7 @@ class ClientConfig(BaseSettings):
     model_config = SettingsConfigDict(
         populate_by_name=True,
         extra="ignore",
+        env_file=".env",
     )
 
     @field_validator("auth_url", mode="before")

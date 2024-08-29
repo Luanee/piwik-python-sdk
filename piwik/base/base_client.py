@@ -72,9 +72,9 @@ class BaseClient:
 
     @property
     def _user_agent(self):
-        py_version = "%d.%d" % sys.version_info[0:2]
+        major, minor, micro = sys.version_info[0:3]
         arch = platform.machine()
-        return f"piwik-python-sdk/{__version__} Python/{py_version} ({sys.implementation.name}; {sys.platform}; {arch})"
+        return f"piwik-python-sdk/{__version__} Python/{major}.{minor}.{micro} ({sys.implementation.name}; {sys.platform}; {arch})"
 
     def _get(
         self,
