@@ -7,6 +7,7 @@ from piwik.base import BaseClient
 from piwik.base.token import BaseTokenStorage
 from piwik.services.administration import AdministrationServices
 from piwik.services.analytics import AnalyticsServices
+from piwik.services.tag_manager import TagManagerServices
 
 
 class Client(BaseClient):
@@ -36,3 +37,7 @@ class Client(BaseClient):
     @property
     def analytics(self):
         return AnalyticsServices(self)
+
+    @property
+    def manager(self):
+        return TagManagerServices(self)
