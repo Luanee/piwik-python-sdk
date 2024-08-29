@@ -50,8 +50,35 @@ class BadRequestException(BasePiwikException):
     errors: list[Error]
 
 
-class ResourceNotFoundExceptions(BasePiwikException):
+class ResourceNotFoundException(BasePiwikException):
     status_code: int = 404
+
+    @classmethod
+    def deserialize(cls, **kwargs) -> BasePiwikException:
+        message = kwargs.get("errors", [])[0]["title"]
+        return cls(message=message, status_code=cls.status_code)
+
+
+class UnauthorizedException(BasePiwikException):
+    status_code: int = 401
+
+    @classmethod
+    def deserialize(cls, **kwargs) -> BasePiwikException:
+        message = kwargs.get("errors", [])[0]["title"]
+        return cls(message=message, status_code=cls.status_code)
+
+
+class ForbiddenException(BasePiwikException):
+    status_code: int = 403
+
+    @classmethod
+    def deserialize(cls, **kwargs) -> BasePiwikException:
+        message = kwargs.get("errors", [])[0]["title"]
+        return cls(message=message, status_code=cls.status_code)
+
+
+class ServerErrorException(BasePiwikException):
+    status_code: int = 500
 
     @classmethod
     def deserialize(cls, **kwargs) -> BasePiwikException:
@@ -75,6 +102,12 @@ class PiwikException:
         data = error.model_dump()
         if error.status_code == 400:
             return BadRequestException.deserialize(**data)
+        elif error.status_code == 401:
+            return UnauthorizedException.deserialize(**data)
+        elif error.status_code == 403:
+            return ForbiddenException.deserialize(**data)
         elif error.status_code == 404:
-            return ResourceNotFoundExceptions.deserialize(**data)
+            return ResourceNotFoundException.deserialize(**data)
+        elif error.status_code in (500, 501, 502, 503):
+            return ServerErrorException.deserialize(**data)
         return BasePiwikException.deserialize(**data)
