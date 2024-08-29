@@ -6,6 +6,7 @@ from typing import Any, Optional
 
 import requests
 from oauthlib.oauth2 import BackendApplicationClient
+from pydantic import SecretStr
 from requests import Response
 from requests.adapters import HTTPAdapter
 
@@ -22,7 +23,7 @@ class BaseClient:
         url: Optional[str] = None,
         auth_url: Optional[str] = None,
         client_id: Optional[str] = None,
-        client_secret: Optional[str] = None,
+        client_secret: Optional[str | SecretStr] = None,
         token_storage: Optional[BaseTokenStorage] = None,
         http_adapter: Optional[HTTPAdapter] = None,
     ) -> None:

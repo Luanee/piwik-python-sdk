@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import urllib.parse
-
 from typing import Optional
 
 from pydantic import Field, SecretStr, ValidationInfo, field_validator
@@ -14,7 +13,10 @@ class ClientConfig(BaseSettings):
     client_id: str = Field(default=..., validation_alias="PIWIK_CLIENT_ID")
     client_secret: SecretStr = Field(default=..., validation_alias="PIWIK_CLIENT_SECRET")
 
-    model_config = SettingsConfigDict(populate_by_name=True, env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(
+        populate_by_name=True,
+        extra="ignore",
+    )
 
     @field_validator("auth_url", mode="before")
     @classmethod

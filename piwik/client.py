@@ -1,5 +1,6 @@
 from typing import Optional
 
+from pydantic import SecretStr
 from requests.adapters import HTTPAdapter
 
 from piwik.base import BaseClient
@@ -14,7 +15,7 @@ class Client(BaseClient):
         url: Optional[str] = None,
         auth_url: Optional[str] = None,
         client_id: Optional[str] = None,
-        client_secret: Optional[str] = None,
+        client_secret: Optional[str | SecretStr] = None,
         token_storage: Optional[BaseTokenStorage] = None,
         http_adapter: Optional[HTTPAdapter] = None,
     ):
