@@ -1,6 +1,7 @@
 import warnings
 
 from piwik.base import BaseService
+from piwik.exceptions import ExceptionResponse
 from piwik.schemas.annotations import (
     UserAnnotation,
     UserAnnotationCreateDraft,
@@ -30,13 +31,12 @@ class UserAnnotationsService(BaseService):
         )
 
         if response.status_code == 200:
-            return Page[UserAnnotation].deserialize(
-                response.json(), page=page, size=size
-            )
+            return Page[UserAnnotation].deserialize(response.json(), page=page, size=size)
+
         if response.status_code in (400, 401, 403, 500, 502, 503):
-            raise ValueError(f"{str(response.json())}")
-            # obj = ErrorResponse.deserialize(response.json())
-            # raise self._client._create_exception(obj, response)
+            error = ExceptionResponse.deserialize(response)
+            raise self._client._raise_for_status(error, response)
+
         if response.status_code != 404:
             warnings.warn(f"Unhandled status code: {response.status_code}")
 
@@ -50,12 +50,12 @@ class UserAnnotationsService(BaseService):
 
         if response.status_code == 200:
             return UserAnnotation.deserialize(response.json())
-        elif response.status_code in (400, 401, 403, 500, 502, 503):
-            raise ValueError(response.json())
-        elif response.status_code == 404:
-            raise ValueError(f"Goal with id: {id} could not be found.")
-        else:
-            warnings.warn(f"Unhandled status code: {response.status_code}")
+
+        if response.status_code in (400, 401, 403, 404, 500, 502, 503):
+            error = ExceptionResponse.deserialize(response)
+            raise self._client._raise_for_status(error, response)
+
+        warnings.warn("Unhandled status code %d" % response.status_code)
 
     def create(self, draft: UserAnnotationCreateDraft):
         response = self._client._post(
@@ -64,12 +64,14 @@ class UserAnnotationsService(BaseService):
         )
         if response.status_code == 201:
             return UserAnnotation.deserialize(response.json())
+
         if response.status_code in (400, 401, 403, 500, 502, 503):
-            raise ValueError(response.json())
+            error = ExceptionResponse.deserialize(response)
+            raise self._client._raise_for_status(error, response)
 
-        warnings.warn(f"Unhandled status code: {response.status_code}")
+        warnings.warn("Unhandled status code %d" % response.status_code)
 
-    def delete(self, id: str, website_id: str):
+    def delete(self, id: str, website_id: str) -> None:
         response = self._client._delete(
             f"{self._endpoint}/{id}",
             params={"website_id": website_id},
@@ -77,14 +79,14 @@ class UserAnnotationsService(BaseService):
 
         if response.status_code == 204:
             return None
-        if response.status_code in (400, 401, 403, 500, 502, 503):
-            raise ValueError(response.json())
-        if response.status_code == 404:
-            raise ValueError(f"Goal with id: {id} could not be found.")
 
-        warnings.warn(f"Unhandled status code: {response.status_code}")
+        if response.status_code in (400, 401, 403, 404, 500, 502, 503):
+            error = ExceptionResponse.deserialize(response)
+            raise self._client._raise_for_status(error, response)
 
-    def update(self, draft: UserAnnotationUpdateDraft):
+        warnings.warn("Unhandled status code %d" % response.status_code)
+
+    def update(self, draft: UserAnnotationUpdateDraft) -> None:
         response = self._client._patch(
             f"{self._endpoint}/{draft.id}",
             json=draft.serialize(),
@@ -92,9 +94,9 @@ class UserAnnotationsService(BaseService):
 
         if response.status_code == 204:
             return None
-        if response.status_code in (400, 401, 403, 500, 502, 503):
-            raise ValueError(response.json())
-        if response.status_code == 404:
-            raise ValueError(f"Goal with id: {draft.id} could not be found.")
 
-        warnings.warn(f"Unhandled status code: {response.status_code}")
+        if response.status_code in (400, 401, 403, 404, 500, 502, 503):
+            error = ExceptionResponse.deserialize(response)
+            raise self._client._raise_for_status(error, response)
+
+        warnings.warn("Unhandled status code %d" % response.status_code)

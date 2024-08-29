@@ -1,10 +1,11 @@
 import datetime
+import warnings
 from typing import Any, Optional, Sequence
 
 from piwik.base import BaseService
+from piwik.exceptions import ExceptionResponse
 from piwik.schemas.raw import RawAnalyticsParameter
 from piwik.schemas.types import COLUMN_FORMAT, FORMAT, RELATIVE_DATE, Column
-from piwik.utils.validators import validate_response
 
 
 class SessionsService(BaseService):
@@ -43,5 +44,11 @@ class SessionsService(BaseService):
             headers=headers,
         )
 
-        validate_response(response)
-        return response.json()
+        if response.status_code == 200:
+            return response.json()
+
+        if response.status_code in (400, 401, 403, 404, 500, 502, 503):
+            error = ExceptionResponse.deserialize(response)
+            raise self._client._raise_for_status(error, response)
+
+        warnings.warn("Unhandled status code %d" % response.status_code)

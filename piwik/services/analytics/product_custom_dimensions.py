@@ -1,6 +1,7 @@
 import warnings
 
 from piwik.base import BaseService
+from piwik.exceptions import ExceptionResponse
 from piwik.schemas.dimensions import (
     ProductDimension,
     ProductDimensionCreateDraft,
@@ -30,13 +31,12 @@ class ProductCustomDimensionsService(BaseService):
         )
 
         if response.status_code == 200:
-            return Page[ProductDimension].deserialize(
-                response.json(), page=page, size=size
-            )
+            return Page[ProductDimension].deserialize(response.json(), page=page, size=size)
+
         if response.status_code in (400, 401, 403, 500, 502, 503):
-            raise ValueError(f"{str(response.json())}")
-            # obj = ErrorResponse.deserialize(response.json())
-            # raise self._client._create_exception(obj, response)
+            error = ExceptionResponse.deserialize(response)
+            raise self._client._raise_for_status(error, response)
+
         if response.status_code != 404:
             warnings.warn(f"Unhandled status code: {response.status_code}")
 
@@ -50,12 +50,12 @@ class ProductCustomDimensionsService(BaseService):
 
         if response.status_code == 200:
             return ProductDimension.deserialize(response.json())
-        elif response.status_code in (400, 401, 403, 500, 502, 503):
-            raise ValueError(response.json())
-        elif response.status_code == 404:
-            raise ValueError(f"ProductDimension with id: {id} could not be found.")
-        else:
-            warnings.warn(f"Unhandled status code: {response.status_code}")
+
+        if response.status_code in (400, 401, 403, 404, 500, 502, 503):
+            error = ExceptionResponse.deserialize(response)
+            raise self._client._raise_for_status(error, response)
+
+        warnings.warn("Unhandled status code %d" % response.status_code)
 
     def create(self, draft: ProductDimensionCreateDraft):
         response = self._client._post(
@@ -64,10 +64,12 @@ class ProductCustomDimensionsService(BaseService):
         )
         if response.status_code == 201:
             return ProductDimension.deserialize(response.json())
-        if response.status_code in (400, 401, 403, 500, 502, 503):
-            raise ValueError(response.json())
 
-        warnings.warn(f"Unhandled status code: {response.status_code}")
+        if response.status_code in (400, 401, 403, 500, 502, 503):
+            error = ExceptionResponse.deserialize(response)
+            raise self._client._raise_for_status(error, response)
+
+        warnings.warn("Unhandled status code %d" % response.status_code)
 
     def update(self, draft: ProductDimensionUpdateDraft):
         response = self._client._patch(
@@ -77,11 +79,9 @@ class ProductCustomDimensionsService(BaseService):
 
         if response.status_code == 204:
             return None
-        if response.status_code in (400, 401, 403, 500, 502, 503):
-            raise ValueError(response.json())
-        if response.status_code == 404:
-            raise ValueError(
-                f"ProductDimension with id: {draft.id} could not be found."
-            )
 
-        warnings.warn(f"Unhandled status code: {response.status_code}")
+        if response.status_code in (400, 401, 403, 404, 500, 502, 503):
+            error = ExceptionResponse.deserialize(response)
+            raise self._client._raise_for_status(error, response)
+
+        warnings.warn("Unhandled status code %d" % response.status_code)

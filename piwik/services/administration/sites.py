@@ -1,8 +1,8 @@
 import warnings
-
 from typing import List, Literal, Optional
 
 from piwik.base.base_client import BaseClient
+from piwik.exceptions import ExceptionResponse
 from piwik.schemas.page import Page
 from piwik.schemas.sites import (
     BaseSite,
@@ -45,10 +45,11 @@ class SitesService:
 
         if response.status_code == 200:
             return Page[BaseSite].deserialize(response.json(), page=page, size=size)
+
         if response.status_code in (400, 401, 403, 500, 502, 503):
-            raise ValueError(f"{str(response.json())}")
-            # obj = ErrorResponse.deserialize(response.json())
-            # raise self._client._create_exception(obj, response)
+            error = ExceptionResponse.deserialize(response)
+            raise self._client._raise_for_status(error, response)
+
         if response.status_code != 404:
             warnings.warn(f"Unhandled status code: {response.status_code}")
 
@@ -59,12 +60,12 @@ class SitesService:
 
         if response.status_code == 200:
             return Site.deserialize(response.json())
-        elif response.status_code in (400, 401, 403, 500, 502, 503):
-            raise ValueError(response.json())
-        elif response.status_code == 404:
-            raise ValueError(f"Site with id: {id} could not be found.")
-        else:
-            warnings.warn(f"Unhandled status code: {response.status_code}")
+
+        if response.status_code in (400, 401, 403, 404, 500, 502, 503):
+            error = ExceptionResponse.deserialize(response)
+            raise self._client._raise_for_status(error, response)
+
+        warnings.warn("Unhandled status code %d" % response.status_code)
 
     def create(self, draft: SiteCreateDraft):
         response = self._client._post(
@@ -73,10 +74,12 @@ class SitesService:
         )
         if response.status_code == 201:
             return Site.deserialize(response.json())
-        if response.status_code in (400, 401, 403, 500, 502, 503):
-            raise ValueError(response.json())
 
-        warnings.warn(f"Unhandled status code: {response.status_code}")
+        if response.status_code in (400, 401, 403, 500, 502, 503):
+            error = ExceptionResponse.deserialize(response)
+            raise self._client._raise_for_status(error, response)
+
+        warnings.warn("Unhandled status code %d" % response.status_code)
 
     def delete(self, id: str):
         response = self._client._delete(
@@ -85,12 +88,12 @@ class SitesService:
 
         if response.status_code == 204:
             return None
-        if response.status_code in (400, 401, 403, 500, 502, 503):
-            raise ValueError(response.json())
-        if response.status_code == 404:
-            raise ValueError(f"App with id: {id} could not be found.")
 
-        warnings.warn(f"Unhandled status code: {response.status_code}")
+        if response.status_code in (400, 401, 403, 404, 500, 502, 503):
+            error = ExceptionResponse.deserialize(response)
+            raise self._client._raise_for_status(error, response)
+
+        warnings.warn("Unhandled status code %d" % response.status_code)
 
     def update(self, draft: SiteUpdateDraft):
         response = self._client._patch(
@@ -100,12 +103,12 @@ class SitesService:
 
         if response.status_code == 204:
             return None
-        if response.status_code in (400, 401, 403, 500, 502, 503):
-            raise ValueError(response.json())
-        if response.status_code == 404:
-            raise ValueError(f"App with id: {draft.id} could not be found.")
 
-        warnings.warn(f"Unhandled status code: {response.status_code}")
+        if response.status_code in (400, 401, 403, 404, 500, 502, 503):
+            error = ExceptionResponse.deserialize(response)
+            raise self._client._raise_for_status(error, response)
+
+        warnings.warn("Unhandled status code %d" % response.status_code)
 
     def list_apps(
         self,
@@ -130,10 +133,11 @@ class SitesService:
 
         if response.status_code == 200:
             return Page[MetaSiteApp].deserialize(response.json(), page=page, size=size)
+
         if response.status_code in (400, 401, 403, 500, 502, 503):
-            raise ValueError(f"{str(response.json())}")
-            # obj = ErrorResponse.deserialize(response.json())
-            # raise self._client._create_exception(obj, response)
+            error = ExceptionResponse.deserialize(response)
+            raise self._client._raise_for_status(error, response)
+
         if response.status_code != 404:
             warnings.warn(f"Unhandled status code: {response.status_code}")
 
@@ -162,10 +166,11 @@ class SitesService:
 
         if response.status_code == 200:
             return Page[MetaSiteApp].deserialize(response.json(), page=page, size=size)
+
         if response.status_code in (400, 401, 403, 500, 502, 503):
-            raise ValueError(f"{str(response.json())}")
-            # obj = ErrorResponse.deserialize(response.json())
-            # raise self._client._create_exception(obj, response)
+            error = ExceptionResponse.deserialize(response)
+            raise self._client._raise_for_status(error, response)
+
         if response.status_code != 404:
             warnings.warn(f"Unhandled status code: {response.status_code}")
 
@@ -179,12 +184,12 @@ class SitesService:
 
         if response.status_code == 204:
             return None
-        elif response.status_code in (400, 401, 403, 500, 502, 503):
-            raise ValueError(response.json())
-        elif response.status_code == 404:
-            raise ValueError(f"Site with id: {meta_site_id} could not be found.")
-        else:
-            warnings.warn(f"Unhandled status code: {response.status_code}")
+
+        if response.status_code in (400, 401, 403, 404, 500, 502, 503):
+            error = ExceptionResponse.deserialize(response)
+            raise self._client._raise_for_status(error, response)
+
+        warnings.warn("Unhandled status code %d" % response.status_code)
 
     def delete_apps(self, meta_site_id: str, ids: List[str]):
         response = self._client._delete(
@@ -194,21 +199,21 @@ class SitesService:
 
         if response.status_code == 204:
             return None
-        elif response.status_code in (400, 401, 403, 500, 502, 503):
-            raise ValueError(response.json())
-        elif response.status_code == 404:
-            raise ValueError(f"Site with id: {meta_site_id} could not be found.")
-        else:
-            warnings.warn(f"Unhandled status code: {response.status_code}")
+
+        if response.status_code in (400, 401, 403, 404, 500, 502, 503):
+            error = ExceptionResponse.deserialize(response)
+            raise self._client._raise_for_status(error, response)
+
+        warnings.warn("Unhandled status code %d" % response.status_code)
 
     def validate(self, id: str):
         response = self._client._get(f"{self._endpoint}/{id}/apps/integrity")
 
         if response.status_code == 200:
             return SiteIntegrity.deserialize(response.json())
-        elif response.status_code in (400, 401, 403, 500, 502, 503):
-            raise ValueError(response.json())
-        elif response.status_code == 404:
-            raise ValueError(f"Site with id: {id} could not be found.")
-        else:
-            warnings.warn(f"Unhandled status code: {response.status_code}")
+
+        if response.status_code in (400, 401, 403, 404, 500, 502, 503):
+            error = ExceptionResponse.deserialize(response)
+            raise self._client._raise_for_status(error, response)
+
+        warnings.warn("Unhandled status code %d" % response.status_code)

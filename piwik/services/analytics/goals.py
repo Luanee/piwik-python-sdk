@@ -1,6 +1,7 @@
 import warnings
 
 from piwik.base import BaseService
+from piwik.exceptions import ExceptionResponse
 from piwik.schemas.goals import Goal, GoalCreateDraft, GoalUpdateDraft
 from piwik.schemas.page import Page
 
@@ -27,10 +28,11 @@ class GoalsService(BaseService):
 
         if response.status_code == 200:
             return Page[Goal].deserialize(response.json(), page=page, size=size)
+
         if response.status_code in (400, 401, 403, 500, 502, 503):
-            raise ValueError(f"{str(response.json())}")
-            # obj = ErrorResponse.deserialize(response.json())
-            # raise self._client._create_exception(obj, response)
+            error = ExceptionResponse.deserialize(response)
+            raise self._client._raise_for_status(error, response)
+
         if response.status_code != 404:
             warnings.warn(f"Unhandled status code: {response.status_code}")
 
@@ -44,12 +46,12 @@ class GoalsService(BaseService):
 
         if response.status_code == 200:
             return Goal.deserialize(response.json())
-        elif response.status_code in (400, 401, 403, 500, 502, 503):
-            raise ValueError(response.json())
-        elif response.status_code == 404:
-            raise ValueError(f"Goal with id: {id} could not be found.")
-        else:
-            warnings.warn(f"Unhandled status code: {response.status_code}")
+
+        if response.status_code in (400, 401, 403, 404, 500, 502, 503):
+            error = ExceptionResponse.deserialize(response)
+            raise self._client._raise_for_status(error, response)
+
+        warnings.warn("Unhandled status code %d" % response.status_code)
 
     def create(self, draft: GoalCreateDraft):
         response = self._client._post(
@@ -58,10 +60,12 @@ class GoalsService(BaseService):
         )
         if response.status_code == 201:
             return Goal.deserialize(response.json())
-        if response.status_code in (400, 401, 403, 500, 502, 503):
-            raise ValueError(response.json())
 
-        warnings.warn(f"Unhandled status code: {response.status_code}")
+        if response.status_code in (400, 401, 403, 404, 500, 502, 503):
+            error = ExceptionResponse.deserialize(response)
+            raise self._client._raise_for_status(error, response)
+
+        warnings.warn("Unhandled status code %d" % response.status_code)
 
     def delete(self, id: str, website_id: str):
         response = self._client._delete(
@@ -71,12 +75,12 @@ class GoalsService(BaseService):
 
         if response.status_code == 204:
             return None
-        if response.status_code in (400, 401, 403, 500, 502, 503):
-            raise ValueError(response.json())
-        if response.status_code == 404:
-            raise ValueError(f"Goal with id: {id} could not be found.")
 
-        warnings.warn(f"Unhandled status code: {response.status_code}")
+        if response.status_code in (400, 401, 403, 404, 500, 502, 503):
+            error = ExceptionResponse.deserialize(response)
+            raise self._client._raise_for_status(error, response)
+
+        warnings.warn("Unhandled status code %d" % response.status_code)
 
     def update(self, draft: GoalUpdateDraft):
         response = self._client._patch(
@@ -86,9 +90,9 @@ class GoalsService(BaseService):
 
         if response.status_code == 204:
             return None
-        if response.status_code in (400, 401, 403, 500, 502, 503):
-            raise ValueError(response.json())
-        if response.status_code == 404:
-            raise ValueError(f"Goal with id: {draft.id} could not be found.")
 
-        warnings.warn(f"Unhandled status code: {response.status_code}")
+        if response.status_code in (400, 401, 403, 404, 500, 502, 503):
+            error = ExceptionResponse.deserialize(response)
+            raise self._client._raise_for_status(error, response)
+
+        warnings.warn("Unhandled status code %d" % response.status_code)

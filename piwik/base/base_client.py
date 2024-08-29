@@ -4,6 +4,7 @@ import platform
 import sys
 from typing import Any, Optional
 
+import requests
 from oauthlib.oauth2 import BackendApplicationClient
 from requests import Response
 from requests.adapters import HTTPAdapter
@@ -11,6 +12,7 @@ from requests.adapters import HTTPAdapter
 from piwik.base.config import ClientConfig
 from piwik.base.http import RefreshingOAuth2Session, RetryHttpAdapter
 from piwik.base.token import BaseTokenStorage, DefaultTokenStorage
+from piwik.exceptions import ExceptionResponse, PiwikException
 from piwik.version import __version__
 
 
@@ -135,3 +137,18 @@ class BaseClient:
             json=json,
             headers=headers,
         )
+
+    def _raise_for_status(
+        self,
+        error: ExceptionResponse,
+        response: requests.Response,
+    ):
+        if not response.content:
+            response.raise_for_status()
+
+        try:
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as exc:
+            error.message = exc.args[0]
+
+        return PiwikException.deserialize(error)
