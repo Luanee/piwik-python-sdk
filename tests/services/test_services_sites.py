@@ -1,13 +1,28 @@
 import re
-
 from typing import Optional, Type
 
 import pytest
 import requests_mock
 
 from piwik.client import Client
+from piwik.exceptions import (
+    BadRequestException,
+    ForbiddenException,
+    ResourceNotFoundException,
+    ServerErrorException,
+    UnauthorizedException,
+)
 from piwik.schemas.sites import SiteCreateDraft, SiteUpdateDraft
 from tests.conftest import PIWIK_URL
+from tests.data.exceptions import (
+    BAD_REQUEST_EXCEPTION,
+    ERROR_EXCEPTION,
+    FORBIDDEN_EXCEPTION,
+    GATEWAY_ERROR_EXCEPTION,
+    RESOURCE_NOT_FOUND_EXCEPTION,
+    SERVER_ERROR_EXCEPTION,
+    UNAUTHORIZED_EXCEPTION,
+)
 from tests.data.sites import (
     RESPONSE_DATA_BASE_SITE,
     RESPONSE_DATA_META_SITE_APP,
@@ -31,12 +46,12 @@ def endpoint():
         (200, prepare_page_data(RESPONSE_DATA_BASE_SITE, 1), None),
         (200, prepare_page_data(RESPONSE_DATA_BASE_SITE, 2), None),
         (404, prepare_page_data(RESPONSE_DATA_BASE_SITE, 2), None),
-        (400, {"error": "BadRequest"}, ValueError),
-        (401, {"error": "Unauthorized"}, ValueError),
-        (403, {"error": "Forbidden"}, ValueError),
-        (500, {"error": "InternalServerError"}, ValueError),
-        (502, {"error": "Error"}, ValueError),
-        (503, {"error": "GatewayError"}, ValueError),
+        (400, BAD_REQUEST_EXCEPTION, BadRequestException),
+        (401, UNAUTHORIZED_EXCEPTION, UnauthorizedException),
+        (403, FORBIDDEN_EXCEPTION, ForbiddenException),
+        (500, SERVER_ERROR_EXCEPTION, ServerErrorException),
+        (502, ERROR_EXCEPTION, ServerErrorException),
+        (503, GATEWAY_ERROR_EXCEPTION, ServerErrorException),
     ],
 )
 def test_service_sites_list_endpoint(
@@ -60,12 +75,12 @@ def test_service_sites_list_endpoint(
         (200, "id", prepare_page_data(RESPONSE_DATA_META_SITE_APP, 1), None),
         (200, "id", prepare_page_data(RESPONSE_DATA_META_SITE_APP, 2), None),
         (404, "id", prepare_page_data(RESPONSE_DATA_META_SITE_APP, 2), None),
-        (400, "id", {"error": "BadRequest"}, ValueError),
-        (401, "id", {"error": "Unauthorized"}, ValueError),
-        (403, "id", {"error": "Forbidden"}, ValueError),
-        (500, "id", {"error": "InternalServerError"}, ValueError),
-        (502, "id", {"error": "Error"}, ValueError),
-        (503, "id", {"error": "GatewayError"}, ValueError),
+        (400, "id", BAD_REQUEST_EXCEPTION, BadRequestException),
+        (401, "id", UNAUTHORIZED_EXCEPTION, UnauthorizedException),
+        (403, "id", FORBIDDEN_EXCEPTION, ForbiddenException),
+        (500, "id", SERVER_ERROR_EXCEPTION, ServerErrorException),
+        (502, "id", ERROR_EXCEPTION, ServerErrorException),
+        (503, "id", GATEWAY_ERROR_EXCEPTION, ServerErrorException),
     ],
 )
 def test_service_sites_list_apps_endpoint(
@@ -90,12 +105,12 @@ def test_service_sites_list_apps_endpoint(
         (200, "id", prepare_page_data(RESPONSE_DATA_META_SITE_APP, 1), None),
         (200, "id", prepare_page_data(RESPONSE_DATA_META_SITE_APP, 2), None),
         (404, "id", prepare_page_data(RESPONSE_DATA_META_SITE_APP, 2), None),
-        (400, "id", {"error": "BadRequest"}, ValueError),
-        (401, "id", {"error": "Unauthorized"}, ValueError),
-        (403, "id", {"error": "Forbidden"}, ValueError),
-        (500, "id", {"error": "InternalServerError"}, ValueError),
-        (502, "id", {"error": "Error"}, ValueError),
-        (503, "id", {"error": "GatewayError"}, ValueError),
+        (400, "id", BAD_REQUEST_EXCEPTION, BadRequestException),
+        (401, "id", UNAUTHORIZED_EXCEPTION, UnauthorizedException),
+        (403, "id", FORBIDDEN_EXCEPTION, ForbiddenException),
+        (500, "id", SERVER_ERROR_EXCEPTION, ServerErrorException),
+        (502, "id", ERROR_EXCEPTION, ServerErrorException),
+        (503, "id", GATEWAY_ERROR_EXCEPTION, ServerErrorException),
     ],
 )
 def test_service_sites_list_all_sites_endpoint(
@@ -117,13 +132,13 @@ def test_service_sites_list_all_sites_endpoint(
     "status_code,id,data,exception",
     [
         (200, "1", RESPONSE_DATA_BASE_SITE, None),
-        (400, "1", {"error": "BadRequest"}, ValueError),
-        (401, "1", {"error": "Unauthorized"}, ValueError),
-        (403, "1", {"error": "Forbidden"}, ValueError),
-        (404, "1", {"error": "ResourceNotFound"}, ValueError),
-        (500, "1", {"error": "InternalServerError"}, ValueError),
-        (502, "1", {"error": "Error"}, ValueError),
-        (503, "1", {"error": "GatewayError"}, ValueError),
+        (400, "1", BAD_REQUEST_EXCEPTION, BadRequestException),
+        (401, "1", UNAUTHORIZED_EXCEPTION, UnauthorizedException),
+        (403, "1", FORBIDDEN_EXCEPTION, ForbiddenException),
+        (404, "1", RESOURCE_NOT_FOUND_EXCEPTION, ResourceNotFoundException),
+        (500, "1", SERVER_ERROR_EXCEPTION, ServerErrorException),
+        (502, "1", ERROR_EXCEPTION, ServerErrorException),
+        (503, "1", GATEWAY_ERROR_EXCEPTION, ServerErrorException),
     ],
 )
 def test_service_sites_get_endpoint(
@@ -145,13 +160,13 @@ def test_service_sites_get_endpoint(
     "status_code,id,data,exception",
     [
         (204, "1", None, None),
-        (400, "1", {"error": "BadRequest"}, ValueError),
-        (401, "1", {"error": "Unauthorized"}, ValueError),
-        (403, "1", {"error": "Forbidden"}, ValueError),
-        (404, "1", {"error": "ResourceNotFound"}, ValueError),
-        (500, "1", {"error": "InternalServerError"}, ValueError),
-        (502, "1", {"error": "Error"}, ValueError),
-        (503, "1", {"error": "GatewayError"}, ValueError),
+        (400, "1", BAD_REQUEST_EXCEPTION, BadRequestException),
+        (401, "1", UNAUTHORIZED_EXCEPTION, UnauthorizedException),
+        (403, "1", FORBIDDEN_EXCEPTION, ForbiddenException),
+        (404, "1", RESOURCE_NOT_FOUND_EXCEPTION, ResourceNotFoundException),
+        (500, "1", SERVER_ERROR_EXCEPTION, ServerErrorException),
+        (502, "1", ERROR_EXCEPTION, ServerErrorException),
+        (503, "1", GATEWAY_ERROR_EXCEPTION, ServerErrorException),
     ],
 )
 def test_service_sites_delete_endpoint(
@@ -173,12 +188,12 @@ def test_service_sites_delete_endpoint(
     "status_code,draft,data,exception",
     [
         (201, SITE_CREATE_DRAFT, RESPONSE_DATA_SITE, None),
-        (400, SITE_CREATE_DRAFT, {"error": "BadRequest"}, ValueError),
-        (401, SITE_CREATE_DRAFT, {"error": "Unauthorized"}, ValueError),
-        (403, SITE_CREATE_DRAFT, {"error": "Forbidden"}, ValueError),
-        (500, SITE_CREATE_DRAFT, {"error": "InternalServerError"}, ValueError),
-        (502, SITE_CREATE_DRAFT, {"error": "Error"}, ValueError),
-        (503, SITE_CREATE_DRAFT, {"error": "GatewayError"}, ValueError),
+        (400, SITE_CREATE_DRAFT, BAD_REQUEST_EXCEPTION, BadRequestException),
+        (401, SITE_CREATE_DRAFT, UNAUTHORIZED_EXCEPTION, UnauthorizedException),
+        (403, SITE_CREATE_DRAFT, FORBIDDEN_EXCEPTION, ForbiddenException),
+        (500, SITE_CREATE_DRAFT, SERVER_ERROR_EXCEPTION, ServerErrorException),
+        (502, SITE_CREATE_DRAFT, ERROR_EXCEPTION, ServerErrorException),
+        (503, SITE_CREATE_DRAFT, GATEWAY_ERROR_EXCEPTION, ServerErrorException),
     ],
 )
 def test_service_sites_create_endpoint(
@@ -200,13 +215,13 @@ def test_service_sites_create_endpoint(
     "status_code,draft,data,exception",
     [
         (204, SITE_UPDATE_DRAFT, None, None),
-        (400, SITE_UPDATE_DRAFT, {"error": "BadRequest"}, ValueError),
-        (401, SITE_UPDATE_DRAFT, {"error": "Unauthorized"}, ValueError),
-        (403, SITE_UPDATE_DRAFT, {"error": "Forbidden"}, ValueError),
-        (404, SITE_UPDATE_DRAFT, {"error": "ResourceNotFoundError"}, ValueError),
-        (500, SITE_UPDATE_DRAFT, {"error": "InternalServerError"}, ValueError),
-        (502, SITE_UPDATE_DRAFT, {"error": "Error"}, ValueError),
-        (503, SITE_UPDATE_DRAFT, {"error": "GatewayError"}, ValueError),
+        (400, SITE_UPDATE_DRAFT, BAD_REQUEST_EXCEPTION, BadRequestException),
+        (401, SITE_UPDATE_DRAFT, UNAUTHORIZED_EXCEPTION, UnauthorizedException),
+        (403, SITE_UPDATE_DRAFT, FORBIDDEN_EXCEPTION, ForbiddenException),
+        (404, SITE_UPDATE_DRAFT, RESOURCE_NOT_FOUND_EXCEPTION, ResourceNotFoundException),
+        (500, SITE_UPDATE_DRAFT, SERVER_ERROR_EXCEPTION, ServerErrorException),
+        (502, SITE_UPDATE_DRAFT, ERROR_EXCEPTION, ServerErrorException),
+        (503, SITE_UPDATE_DRAFT, GATEWAY_ERROR_EXCEPTION, ServerErrorException),
     ],
 )
 def test_service_sites_update_endpoint(
@@ -228,13 +243,13 @@ def test_service_sites_update_endpoint(
     "status_code,id,ids,data,exception",
     [
         (204, "id", ["id_1", "id_2"], None, None),
-        (400, "id", ["id_1", "id_2"], {"error": "BadRequest"}, ValueError),
-        (401, "id", ["id_1", "id_2"], {"error": "Unauthorized"}, ValueError),
-        (403, "id", ["id_1", "id_2"], {"error": "Forbidden"}, ValueError),
-        (404, "id", ["id_1", "id_2"], {"error": "ResourceNotFoundError"}, ValueError),
-        (500, "id", ["id_1", "id_2"], {"error": "InternalServerError"}, ValueError),
-        (502, "id", ["id_1", "id_2"], {"error": "Error"}, ValueError),
-        (503, "id", ["id_1", "id_2"], {"error": "GatewayError"}, ValueError),
+        (400, "id", ["id_1", "id_2"], BAD_REQUEST_EXCEPTION, BadRequestException),
+        (401, "id", ["id_1", "id_2"], UNAUTHORIZED_EXCEPTION, UnauthorizedException),
+        (403, "id", ["id_1", "id_2"], FORBIDDEN_EXCEPTION, ForbiddenException),
+        (404, "id", ["id_1", "id_2"], RESOURCE_NOT_FOUND_EXCEPTION, ResourceNotFoundException),
+        (500, "id", ["id_1", "id_2"], SERVER_ERROR_EXCEPTION, ServerErrorException),
+        (502, "id", ["id_1", "id_2"], ERROR_EXCEPTION, ServerErrorException),
+        (503, "id", ["id_1", "id_2"], GATEWAY_ERROR_EXCEPTION, ServerErrorException),
     ],
 )
 def test_service_sites_add_apps_endpoint(
@@ -257,13 +272,13 @@ def test_service_sites_add_apps_endpoint(
     "status_code,id,ids,data,exception",
     [
         (204, "id", ["id_1", "id_2"], None, None),
-        (400, "id", ["id_1", "id_2"], {"error": "BadRequest"}, ValueError),
-        (401, "id", ["id_1", "id_2"], {"error": "Unauthorized"}, ValueError),
-        (403, "id", ["id_1", "id_2"], {"error": "Forbidden"}, ValueError),
-        (404, "id", ["id_1", "id_2"], {"error": "ResourceNotFoundError"}, ValueError),
-        (500, "id", ["id_1", "id_2"], {"error": "InternalServerError"}, ValueError),
-        (502, "id", ["id_1", "id_2"], {"error": "Error"}, ValueError),
-        (503, "id", ["id_1", "id_2"], {"error": "GatewayError"}, ValueError),
+        (400, "id", ["id_1", "id_2"], BAD_REQUEST_EXCEPTION, BadRequestException),
+        (401, "id", ["id_1", "id_2"], UNAUTHORIZED_EXCEPTION, UnauthorizedException),
+        (403, "id", ["id_1", "id_2"], FORBIDDEN_EXCEPTION, ForbiddenException),
+        (404, "id", ["id_1", "id_2"], RESOURCE_NOT_FOUND_EXCEPTION, ResourceNotFoundException),
+        (500, "id", ["id_1", "id_2"], SERVER_ERROR_EXCEPTION, ServerErrorException),
+        (502, "id", ["id_1", "id_2"], ERROR_EXCEPTION, ServerErrorException),
+        (503, "id", ["id_1", "id_2"], GATEWAY_ERROR_EXCEPTION, ServerErrorException),
     ],
 )
 def test_service_sites_delete_apps_endpoint(
@@ -288,13 +303,13 @@ def test_service_sites_delete_apps_endpoint(
     "status_code,id,data,exception",
     [
         (200, "1", RESPONSE_DATA_SITE_INTEGRITY_BASE, None),
-        (400, "1", {"error": "BadRequest"}, ValueError),
-        (401, "1", {"error": "Unauthorized"}, ValueError),
-        (403, "1", {"error": "Forbidden"}, ValueError),
-        (404, "1", {"error": "ResourceNotFoundError"}, ValueError),
-        (500, "1", {"error": "InternalServerError"}, ValueError),
-        (502, "1", {"error": "Error"}, ValueError),
-        (503, "1", {"error": "GatewayError"}, ValueError),
+        (400, "id", BAD_REQUEST_EXCEPTION, BadRequestException),
+        (401, "id", UNAUTHORIZED_EXCEPTION, UnauthorizedException),
+        (403, "id", FORBIDDEN_EXCEPTION, ForbiddenException),
+        (404, "id", RESOURCE_NOT_FOUND_EXCEPTION, ResourceNotFoundException),
+        (500, "id", SERVER_ERROR_EXCEPTION, ServerErrorException),
+        (502, "id", ERROR_EXCEPTION, ServerErrorException),
+        (503, "id", GATEWAY_ERROR_EXCEPTION, ServerErrorException),
     ],
 )
 def test_service_site_integrity_endpoint(
