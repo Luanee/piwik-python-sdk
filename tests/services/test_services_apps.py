@@ -1,11 +1,17 @@
 import re
-
 from typing import Optional, Type
 
 import pytest
 import requests_mock
 
 from piwik.client import Client
+from piwik.exceptions import (
+    BadRequestException,
+    ForbiddenException,
+    ResourceNotFoundException,
+    ServerErrorException,
+    UnauthorizedException,
+)
 from piwik.schemas.apps import AppCreateDraft, AppUpdateDraft
 from tests.conftest import PIWIK_URL
 from tests.data.apps import (
@@ -14,6 +20,15 @@ from tests.data.apps import (
     RESPONSE_DATA_APP,
     RESPONSE_DATA_BASE_APP,
     RESPONSE_DATA_PERMISSION_BASE,
+)
+from tests.data.exceptions import (
+    BAD_REQUEST_EXCEPTION,
+    ERROR_EXCEPTION,
+    FORBIDDEN_EXCEPTION,
+    GATEWAY_ERROR_EXCEPTION,
+    RESOURCE_NOT_FOUND_EXCEPTION,
+    SERVER_ERROR_EXCEPTION,
+    UNAUTHORIZED_EXCEPTION,
 )
 from tests.utils.helper import exception_handler, prepare_page_data
 
@@ -30,12 +45,12 @@ def endpoint():
         (200, prepare_page_data(RESPONSE_DATA_BASE_APP, 1), None),
         (200, prepare_page_data(RESPONSE_DATA_BASE_APP, 2), None),
         (404, prepare_page_data(RESPONSE_DATA_BASE_APP, 2), None),
-        (400, {"error": "BadRequest"}, ValueError),
-        (401, {"error": "Unauthorized"}, ValueError),
-        (403, {"error": "Forbidden"}, ValueError),
-        (500, {"error": "InternalServerError"}, ValueError),
-        (502, {"error": "Error"}, ValueError),
-        (503, {"error": "GatewayError"}, ValueError),
+        (400, BAD_REQUEST_EXCEPTION, BadRequestException),
+        (401, UNAUTHORIZED_EXCEPTION, UnauthorizedException),
+        (403, FORBIDDEN_EXCEPTION, ForbiddenException),
+        (500, SERVER_ERROR_EXCEPTION, ServerErrorException),
+        (502, ERROR_EXCEPTION, ServerErrorException),
+        (503, GATEWAY_ERROR_EXCEPTION, ServerErrorException),
     ],
 )
 def test_service_apps_list_endpoint(
@@ -56,13 +71,13 @@ def test_service_apps_list_endpoint(
     "status_code,id,data,exception",
     [
         (200, "1", RESPONSE_DATA_APP, None),
-        (400, "1", {"error": "BadRequest"}, ValueError),
-        (401, "1", {"error": "Unauthorized"}, ValueError),
-        (403, "1", {"error": "Forbidden"}, ValueError),
-        (404, "1", {"error": "ResourceNotFound"}, ValueError),
-        (500, "1", {"error": "InternalServerError"}, ValueError),
-        (502, "1", {"error": "Error"}, ValueError),
-        (503, "1", {"error": "GatewayError"}, ValueError),
+        (400, "1", BAD_REQUEST_EXCEPTION, BadRequestException),
+        (401, "1", UNAUTHORIZED_EXCEPTION, UnauthorizedException),
+        (403, "1", FORBIDDEN_EXCEPTION, ForbiddenException),
+        (404, "1", RESOURCE_NOT_FOUND_EXCEPTION, ResourceNotFoundException),
+        (500, "1", SERVER_ERROR_EXCEPTION, ServerErrorException),
+        (502, "1", ERROR_EXCEPTION, ServerErrorException),
+        (503, "1", GATEWAY_ERROR_EXCEPTION, ServerErrorException),
     ],
 )
 def test_service_apps_get_endpoint(
@@ -84,13 +99,13 @@ def test_service_apps_get_endpoint(
     "status_code,id,data,exception",
     [
         (204, "1", None, None),
-        (400, "1", {"error": "BadRequest"}, ValueError),
-        (401, "1", {"error": "Unauthorized"}, ValueError),
-        (403, "1", {"error": "Forbidden"}, ValueError),
-        (404, "1", {"error": "ResourceNotFound"}, ValueError),
-        (500, "1", {"error": "InternalServerError"}, ValueError),
-        (502, "1", {"error": "Error"}, ValueError),
-        (503, "1", {"error": "GatewayError"}, ValueError),
+        (400, "1", BAD_REQUEST_EXCEPTION, BadRequestException),
+        (401, "1", UNAUTHORIZED_EXCEPTION, UnauthorizedException),
+        (403, "1", FORBIDDEN_EXCEPTION, ForbiddenException),
+        (404, "1", RESOURCE_NOT_FOUND_EXCEPTION, ResourceNotFoundException),
+        (500, "1", SERVER_ERROR_EXCEPTION, ServerErrorException),
+        (502, "1", ERROR_EXCEPTION, ServerErrorException),
+        (503, "1", GATEWAY_ERROR_EXCEPTION, ServerErrorException),
     ],
 )
 def test_service_apps_delete_endpoint(
@@ -112,12 +127,12 @@ def test_service_apps_delete_endpoint(
     "status_code,draft,data,exception",
     [
         (201, APP_CREATE_DRAFT, RESPONSE_DATA_APP, None),
-        (400, APP_CREATE_DRAFT, {"error": "BadRequest"}, ValueError),
-        (401, APP_CREATE_DRAFT, {"error": "Unauthorized"}, ValueError),
-        (403, APP_CREATE_DRAFT, {"error": "Forbidden"}, ValueError),
-        (500, APP_CREATE_DRAFT, {"error": "InternalServerError"}, ValueError),
-        (502, APP_CREATE_DRAFT, {"error": "Error"}, ValueError),
-        (503, APP_CREATE_DRAFT, {"error": "GatewayError"}, ValueError),
+        (400, APP_UPDATE_DRAFT, BAD_REQUEST_EXCEPTION, BadRequestException),
+        (401, APP_UPDATE_DRAFT, UNAUTHORIZED_EXCEPTION, UnauthorizedException),
+        (403, APP_UPDATE_DRAFT, FORBIDDEN_EXCEPTION, ForbiddenException),
+        (500, APP_UPDATE_DRAFT, SERVER_ERROR_EXCEPTION, ServerErrorException),
+        (502, APP_UPDATE_DRAFT, ERROR_EXCEPTION, ServerErrorException),
+        (503, APP_UPDATE_DRAFT, GATEWAY_ERROR_EXCEPTION, ServerErrorException),
     ],
 )
 def test_service_apps_create_endpoint(
@@ -139,13 +154,13 @@ def test_service_apps_create_endpoint(
     "status_code,draft,data,exception",
     [
         (204, APP_UPDATE_DRAFT, None, None),
-        (400, APP_UPDATE_DRAFT, {"error": "BadRequest"}, ValueError),
-        (401, APP_UPDATE_DRAFT, {"error": "Unauthorized"}, ValueError),
-        (403, APP_UPDATE_DRAFT, {"error": "Forbidden"}, ValueError),
-        (404, APP_UPDATE_DRAFT, {"error": "ResourceNotFoundError"}, ValueError),
-        (500, APP_UPDATE_DRAFT, {"error": "InternalServerError"}, ValueError),
-        (502, APP_UPDATE_DRAFT, {"error": "Error"}, ValueError),
-        (503, APP_UPDATE_DRAFT, {"error": "GatewayError"}, ValueError),
+        (400, APP_UPDATE_DRAFT, BAD_REQUEST_EXCEPTION, BadRequestException),
+        (401, APP_UPDATE_DRAFT, UNAUTHORIZED_EXCEPTION, UnauthorizedException),
+        (403, APP_UPDATE_DRAFT, FORBIDDEN_EXCEPTION, ForbiddenException),
+        (404, APP_UPDATE_DRAFT, RESOURCE_NOT_FOUND_EXCEPTION, ResourceNotFoundException),
+        (500, APP_UPDATE_DRAFT, SERVER_ERROR_EXCEPTION, ServerErrorException),
+        (502, APP_UPDATE_DRAFT, ERROR_EXCEPTION, ServerErrorException),
+        (503, APP_UPDATE_DRAFT, GATEWAY_ERROR_EXCEPTION, ServerErrorException),
     ],
 )
 def test_service_apps_update_endpoint(
@@ -167,13 +182,13 @@ def test_service_apps_update_endpoint(
     "status_code,id,data,exception",
     [
         (200, "1", prepare_page_data(RESPONSE_DATA_PERMISSION_BASE, 2), None),
-        (400, "1", {"error": "BadRequest"}, ValueError),
-        (401, "1", {"error": "Unauthorized"}, ValueError),
-        (403, "1", {"error": "Forbidden"}, ValueError),
-        (404, "1", {"error": "ResourceNotFoundError"}, ValueError),
-        (500, "1", {"error": "InternalServerError"}, ValueError),
-        (502, "1", {"error": "Error"}, ValueError),
-        (503, "1", {"error": "GatewayError"}, ValueError),
+        (400, "id", BAD_REQUEST_EXCEPTION, BadRequestException),
+        (401, "id", UNAUTHORIZED_EXCEPTION, UnauthorizedException),
+        (403, "id", FORBIDDEN_EXCEPTION, ForbiddenException),
+        (404, "id", RESOURCE_NOT_FOUND_EXCEPTION, ResourceNotFoundException),
+        (500, "id", SERVER_ERROR_EXCEPTION, ServerErrorException),
+        (502, "id", ERROR_EXCEPTION, ServerErrorException),
+        (503, "id", GATEWAY_ERROR_EXCEPTION, ServerErrorException),
     ],
 )
 def test_service_apps_permissions_endpoint(
