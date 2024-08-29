@@ -50,12 +50,7 @@ class BaseClient:
             token_updater=self._token_storage.add_token,
         )
 
-        self._http_client.headers.update(
-            {
-                "User-Agent": self._user_agent,
-                "Content-Type": "application/vnd.api+json",
-            }
-        )
+        self._http_client.headers.update(self._headers)
         self._http_client.mount("http://", http_adapter)
         self._http_client.mount("https://", http_adapter)
 
@@ -71,6 +66,13 @@ class BaseClient:
         self._http_client.token = _token
 
     @property
+    def _headers(self):
+        return {
+            "User-Agent": self._user_agent,
+            "Content-Type": "application/vnd.api+json",
+        }
+
+    @property
     def _user_agent(self):
         major, minor, micro = sys.version_info[0:3]
         arch = platform.machine()
@@ -83,6 +85,7 @@ class BaseClient:
         headers: Optional[dict[str, str]] = None,
     ) -> Response:
         """Retrieve a single object from piwik pro"""
+        headers = (headers or {}).update(self._headers)
         return self._http_client.get(
             f"{self._config.url}{endpoint}",
             params=params,
