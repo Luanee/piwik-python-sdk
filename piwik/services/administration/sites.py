@@ -14,7 +14,7 @@ from piwik.schemas.sites import (
     SiteUpdateDraft,
 )
 
-from .apps import SEARCH
+from .apps import SORT
 
 
 class SitesService:
@@ -27,7 +27,7 @@ class SitesService:
     def list(
         self,
         search: Optional[str] = None,
-        sort: SEARCH = "name",
+        sort: SORT = "name",
         page: int = 0,
         size: int = 10,
     ) -> Page[BaseSite]:
@@ -114,7 +114,7 @@ class SitesService:
         self,
         id: str,
         search: Optional[str] = None,
-        sort: SEARCH = "name",
+        sort: SORT = "name",
         page: int = 0,
         size: int = 10,
         type: Literal["included"] | Literal["excluded"] = "included",
@@ -146,7 +146,7 @@ class SitesService:
     def list_all_sites(
         self,
         search: Optional[str] = None,
-        sort: SEARCH = "name",
+        sort: SORT = "name",
         page: int = 0,
         size: int = 10,
         action: Literal["view"] | Literal["edit"] = "view",

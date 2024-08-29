@@ -7,7 +7,7 @@ from piwik.schemas.apps import App, AppCreateDraft, AppPermission, AppUpdateDraf
 from piwik.schemas.base import BaseSite
 from piwik.schemas.page import Page
 
-SEARCH = (
+SORT = (
     Literal["name"]
     | Literal["addedAt"]
     | Literal["updatedAt"]
@@ -31,7 +31,7 @@ class AppsService:
     def list(
         self,
         search: Optional[str] = None,
-        sort: SEARCH = "-addedAt",
+        sort: SORT = "-addedAt",
         page: int = 0,
         size: int = 10,
         permission: Optional[PERMISSIONS] = None,
@@ -138,7 +138,7 @@ class AppsService:
         self,
         user_group_id: str,
         search: Optional[str] = None,
-        sort: SEARCH = "name",
+        sort: SORT = "name",
         page: int = 0,
         size: int = 10,
     ):
