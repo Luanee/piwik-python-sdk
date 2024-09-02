@@ -3,7 +3,7 @@ from typing import Literal, Optional, get_args
 
 from pydantic import Field
 
-from piwik.schemas.base import BaseSchema, RequestDataMixin
+from piwik.schemas.base import BaseSchema, CreateRequestDataMixin, UpdateRequestDataMixin
 from piwik.schemas.types import PathChoices
 
 ProductCustomDimensionType = Literal["ProductCustomDimension"]
@@ -38,11 +38,11 @@ class ProductCustomDimension(BaseProductCustomDimension):
     )
 
 
-class ProductCustomDimensionCreateDraft(RequestDataMixin, BaseProductCustomDimension):
+class ProductCustomDimensionCreateDraft(CreateRequestDataMixin, BaseProductCustomDimension):
     id: None = None
 
 
-class ProductCustomDimensionUpdateDraft(RequestDataMixin, BaseProductCustomDimension):
+class ProductCustomDimensionUpdateDraft(UpdateRequestDataMixin, BaseProductCustomDimension):
     id: str
     type: ProductCustomDimensionType = Field(default=PRODUCT_CUSTOM_DIMENSION_TYPE)
     website_id: str

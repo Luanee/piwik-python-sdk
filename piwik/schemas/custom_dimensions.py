@@ -2,7 +2,7 @@ from typing import Literal, Optional, get_args
 
 from pydantic import BaseModel, Field
 
-from piwik.schemas.base import BaseSchema, RequestDataMixin
+from piwik.schemas.base import BaseSchema, CreateRequestDataMixin, UpdateRequestDataMixin
 from piwik.schemas.types import PathChoices
 
 CustomDimensionSlotsType = Literal["CustomDimensionSlots"]
@@ -75,11 +75,11 @@ class CustomDimension(BaseCustomDimension):
     )
 
 
-class CustomDimensionCreateDraft(RequestDataMixin, BaseCustomDimension):
+class CustomDimensionCreateDraft(CreateRequestDataMixin, BaseCustomDimension):
     id: None = None
 
 
-class CustomDimensionUpdateDraft(RequestDataMixin, BaseCustomDimension):
+class CustomDimensionUpdateDraft(UpdateRequestDataMixin, BaseCustomDimension):
     id: str
     type: CustomDimensionType = Field(default=CUSTOM_DIMENSION_TYPE)
 

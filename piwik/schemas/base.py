@@ -60,11 +60,15 @@ class DateMixin(BaseModel):
         default=None,
         validation_alias=PathChoices("data.attributes.addedAt", "data.attributes.created_at"),
         serialization_alias="addedAt",
+        description="ISO 8601",
+        title="DateTime",
     )
     updated_at: Optional[DateTimeString] = Field(
         default=None,
         validation_alias=PathChoices("data.attributes.updatedAt", "data.attributes.updated_at"),
         serialization_alias="updatedAt",
+        description="ISO 8601",
+        title="DateTime",
     )
 
 
@@ -79,8 +83,11 @@ class BaseSite(BaseSchema, DateMixin):
 
 
 class RequestDataMixin(BaseModel):
-    def serialize(self, exclude: Optional[set] = None) -> dict[str, Any]:
-        data = self.model_dump(include=exclude)
+    def serialize(self, data_fields: Optional[set] = None, exclude: Optional[set] = None) -> dict[str, Any]:
+        data = self.model_dump(include=data_fields)
+
+        exclude = (exclude or set()).union(data_fields or set())
+
         attributes = self.model_dump(exclude=exclude, exclude_unset=True)
         return {
             "data": {
@@ -92,9 +99,9 @@ class RequestDataMixin(BaseModel):
 
 class UpdateRequestDataMixin(RequestDataMixin):
     def serialize(self):
-        return RequestDataMixin.serialize(self, exclude={"id", "type"})
+        return RequestDataMixin.serialize(self, data_fields={"id", "type"})
 
 
 class CreateRequestDataMixin(RequestDataMixin):
     def serialize(self):
-        return RequestDataMixin.serialize(self, exclude={"type"})
+        return RequestDataMixin.serialize(self, data_fields={"type"})

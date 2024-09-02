@@ -1,11 +1,18 @@
 from typing import Any, Generic, Optional, TypeVar
 
-from pydantic import AliasPath, BaseModel, Field
+from pydantic import AliasPath, AnyUrl, BaseModel, Field
 
 from piwik.schemas.base import BaseSchema
 
-
 TSchema = TypeVar("TSchema", bound=BaseSchema)
+
+
+class Links(BaseModel):
+    self: AnyUrl = Field(..., description="Link to current page")
+    first: Optional[AnyUrl] = Field(default=None, description="Link to first page")
+    last: Optional[AnyUrl] = Field(default=None, description="Link to last page")
+    prev: Optional[AnyUrl] = Field(default=None, description="Link to previous page")
+    next: Optional[AnyUrl] = Field(default=None, description="Link to next page")
 
 
 class Page(BaseModel, Generic[TSchema]):
@@ -13,6 +20,7 @@ class Page(BaseModel, Generic[TSchema]):
     size: int = Field(default=10)
     total: int = Field(validation_alias=AliasPath("meta", "total"), default=0)
     data: list[TSchema] = Field(validation_alias=AliasPath("data"), default_factory=list)
+    links: Links = Field(..., description="Pagination links")
 
     @classmethod
     def deserialize(cls, data: Optional[dict[str, Any]] = None, page: int = 0, size: int = 10):

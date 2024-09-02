@@ -1,7 +1,7 @@
 import datetime
 from typing import Annotated, Any, Optional
 
-from pydantic import PlainSerializer
+from pydantic import AfterValidator, PlainSerializer
 
 
 def urls_startswith(urls: list[str]):
@@ -34,8 +34,38 @@ def validate_comma_separated_string(parameter: str, field: Any, value: Optional[
     )
 
 
-DateString = Annotated[datetime.date, PlainSerializer(lambda x: x.strftime("%Y-%m-%d"), return_type=str)]
+def parse_date(value: str | datetime.date) -> datetime.date:
+    if isinstance(value, datetime.date):
+        return value
+    return datetime.datetime.strptime(value, "%Y-%m-%d").date()
+
+
+def parse_time(value: str | datetime.time) -> datetime.time:
+    if isinstance(value, datetime.time):
+        return value
+    return datetime.datetime.strptime(value, "%H:%M:%S").time()
+
+
+def parse_datetime(value: str | datetime.datetime) -> datetime.datetime:
+    if isinstance(value, datetime.datetime):
+        return value
+    return datetime.datetime.strptime(value, "%Y-%m-%dT%H:%M:%S")
+
+
+DateString = Annotated[
+    datetime.date,
+    AfterValidator(parse_date),
+    PlainSerializer(lambda x: x.strftime("%Y-%m-%d"), return_type=str),
+]
+
+TimeString = Annotated[
+    datetime.time,
+    AfterValidator(parse_time),
+    PlainSerializer(lambda x: x.strftime("%H:%M:%S"), return_type=str),
+]
 
 DateTimeString = Annotated[
-    datetime.datetime, PlainSerializer(lambda x: x.strftime("%Y-%m-%dT%H:%M:%S"), return_type=str)
+    datetime.datetime,
+    AfterValidator(parse_datetime),
+    PlainSerializer(lambda x: x.strftime("%Y-%m-%dT%H:%M:%S"), return_type=str),
 ]
